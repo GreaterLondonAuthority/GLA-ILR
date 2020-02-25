@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="1" author="ybouhass">
+        <createSequence sequenceName="users_seq" startValue="100" incrementBy="1" />
+        <createTable tableName="users">
+            <column name="id" type="int4" autoIncrement="true" defaultValueSequenceNext="users_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="username" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="password" type="varchar(80)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="ybouhass">
+        <createSequence sequenceName="data_import_seq" startValue="100" incrementBy="1" />
+        <createTable tableName="data_import">
+            <column name="id" type="int4" autoIncrement="true" defaultValueSequenceNext="funding_learner_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="file_name" type="varchar(255)" />
+        </createTable>
+
+        <createSequence sequenceName="funding_learner_record_seq" startValue="100" incrementBy="1" />
+        <createTable tableName="funding_learner_record">
+            <column name="id" type="int4" autoIncrement="true" defaultValueSequenceNext="funding_learner_record_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="year" type="INT" />
+            <column name="ukprn" type="INT" />
+            <column name="learn_ref_number" type="varchar(12)" />
+            <column name="month" type="INT" />
+            <column name="total_payment" type="decimal" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="jdimsa">
+        <addColumn tableName="data_import">
+            <column name="status" type="varchar(20)"/>
+            <column name="created_on" type="TIMESTAMP"/>
+            <column name="created_by" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="4" author="cmelville">
+        <addColumn tableName="data_import">
+            <column name="import_type" type="varchar(40)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="5" author="cmelville">
+        <createSequence sequenceName="funding_summary_record_seq" startValue="100" incrementBy="1" />
+        <createTable tableName="funding_summary_record">
+            <column name="id" type="int4" autoIncrement="true" defaultValueSequenceNext="funding_summary_record_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="year" type="INT" />
+            <column name="ukprn" type="INT" />
+            <column name="funding_line" type="varchar(255)" />
+            <column name="source" type="varchar(50)" />
+            <column name="category" type="varchar(255)" />
+            <column name="month" type="INT" />
+            <column name="total_payment" type="decimal" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="6" author="ybouhass">
+        <!--
+            Table to support Spring Integration's "JdbcLockRegistry" for distributed locking
+            across a cluster.
+
+            http://docs.spring.io/spring-integration/docs/4.3.4.RELEASE/reference/html/jdbc.html#jdbc-lock-registry
+        -->
+        <createTable tableName="int_lock">
+            <column name="lock_key" type="char(36)">
+                <constraints nullable="false" />
+            </column>
+            <column name="region" type="varchar(100)">
+                <constraints nullable="false" />
+            </column>
+            <column name="client_id" type="char(36)" />
+            <column name="created_date" type="timestamp">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addPrimaryKey constraintName="lock_pk" tableName="int_lock" columnNames="LOCK_KEY, REGION" />
+    </changeSet>
+    
+    <changeSet id="7" author="ybouhass">
+        <createTable tableName="encrypted_text">
+            <column name="text_type" type="varchar(255)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="encrypted_text" type="varchar(255)" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="8" author="ybouhass">
+        <addColumn tableName="funding_summary_record">
+            <column name="month_total" type="decimal" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="9" author="cmelville">
+
+        <renameColumn tableName="funding_summary_record" oldColumnName="year" newColumnName="academic_year"/>
+        <renameColumn tableName="funding_summary_record" oldColumnName="month" newColumnName="period"/>
+
+        <addColumn tableName="funding_summary_record">
+            <column name="actual_year" type="INT" />
+            <column name="actual_month" type="INT" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="10" author="cmelville">
+        <addColumn tableName="data_import">
+            <column name="last_export_date" type="TIMESTAMP" />
+            <column name="academic_year" type="INT" />
+            <column name="period" type="INT" />
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

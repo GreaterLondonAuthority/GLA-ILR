@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="18" author="jsingh">
+        <createSequence sequenceName="health_problems_record_seq" startValue="100" incrementBy="1" />
+        <createTable tableName="health_problems_record">
+            <column name="id" type="int4" autoIncrement="true" defaultValueSequenceNext="health_problems_record_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="year" type="varchar(8)" />
+            <column name="snapshot" type="SMALLINT" />
+            <column name="return_number" type="SMALLINT" />
+            <column name="month"  type="SMALLINT" />
+            <column name="ukprn" type="INT" />
+            <column name="prev_ukprn" type="int" />
+            <column name="Learner_ref_number" type="varchar(12)" />
+            <column name="prev_learner_ref_number" type="varchar(12)" />
+            <column name="unique_learner_number" type="INT" />
+            <column name="lldd_category" type="SMALLINT" />
+            <column name="Primary_lldd" type="SMALLINT" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="19" author="jsingh">
+        <dropSequence sequenceName="health_problems_record_seq" />
+        <dropTable tableName="health_problems_record" />
+        <createSequence sequenceName="health_problem_record_seq" startValue="100" incrementBy="1" />
+        <createTable tableName="health_problem_record">
+            <column name="id" type="int4" autoIncrement="true" defaultValueSequenceNext="health_problem_record_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="year" type="varchar(8)" />
+            <column name="snapshot" type="SMALLINT" />
+            <column name="return_number" type="SMALLINT" />
+            <column name="month"  type="SMALLINT" />
+            <column name="ukprn" type="INT" />
+            <column name="prev_ukprn" type="int" />
+            <column name="Learner_ref_number" type="varchar(20)" />
+            <column name="prev_learner_ref_number" type="varchar(20)" />
+            <column name="unique_learner_number" type="INT" />
+            <column name="lldd_category" type="SMALLINT" />
+            <column name="Primary_lldd" type="SMALLINT" />
+        </createTable>
+        <createTable tableName="health_problem_category">
+            <column name="code" type="SMALLINT" />
+            <column name="description" type="varchar(250)" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20" author="jsingh">
+        <renameColumn tableName="health_problem_record"
+            oldColumnName  ="Learner_ref_number"
+            newColumnName ="learner_ref_number" />
+        <renameColumn tableName="health_problem_record"
+                      oldColumnName  ="Primary_lldd"
+                      newColumnName ="primary_lldd" />
+    </changeSet>
+</databaseChangeLog>

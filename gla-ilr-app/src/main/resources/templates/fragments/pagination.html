@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xml:lang="en" lang="en">
+<body>
+
+<div th:fragment="pagination">
+
+    <div class="pull-right" aria-label="Page navigation" th:if="${!page.isEmpty()}">
+        <ul class="pagination" th:with="currentUrl=(${@currentUrlWithoutParam.apply('page')})">
+            <li th:class="${page.pageNumber + 1 == 1} ? 'disabled' : ''">
+                <a th:href="@{${currentUrl}(page=${page.pageNumber - 1})}">Previous</a>
+            </li>
+            <li th:each="pageNo : ${#numbers.sequence(0, page.totalPages)}"
+                th:class="${page.pageNumber + 1 eq pageNo}? 'active' : ''">
+                <a th:if="${page.pageNumber + 1  eq pageNo}" href="javascript:void(0);">
+                    <span id="active-page" th:text="${pageNo}"></span>
+                </a>
+            </li>
+            <li th:class="${page.pageNumber + 1 == page.totalPages} ? 'disabled' : ''">
+                <a id="next-page" th:href="@{${currentUrl}(page=${page.pageNumber + 1})}">Next</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="pull-left pagination-summary" th:if="${page.totalElements == 0}">
+        <span id="no-data-text">No data</span>
+    </div>
+
+    <div class="pull-right pagination-summary">
+        Showing
+        <span class="start-end-index">
+            <span th:text="${page.startIndex}"></span> - <span id="number-of-shown-results" th:text="${page.endIndex}"></span>
+        </span>
+        of <span th:text="${page.totalElements}"></span>
+    </div>
+
+</div>
+
+</body>
+</html>

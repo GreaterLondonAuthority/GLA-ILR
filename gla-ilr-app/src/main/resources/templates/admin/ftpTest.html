@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
+      xml:lang="en" lang="en">
+<body>
+<div>
+    <section id="files" class="gla-main-section" layout:fragment="content">
+
+        <div id="page-header" class="page-header">
+            <h2>FTP Test</h2>
+        </div>
+
+        <div id="ftp-details" class="col-md-6 col-md-offset-3">
+            <form action="#" th:action="@{/ftpTest}" th:object="${ftpConfig}" method="post">
+                <div class="row mtop10">
+                    <label for="ftp-host">Server address</label>
+                    <input id="ftp-host" type="text" name="host" th:value="${ftpConfig.host}" maxlength="255" class="form-control">
+                    <span id="ftp-host-error" class="error" th:if="${#fields.hasErrors('host')}" th:errors="*{host}">Cannot be empty</span>
+                </div>
+
+                <div class="row mtop10">
+                    <label for="ftp-path">Directory path</label>
+                    <input id="ftp-path" type="text" name="path" th:value="${ftpConfig.path}" maxlength="255" class="form-control">
+                    <span id="ftp-path-error" class="error" th:if="${#fields.hasErrors('path')}" th:errors="*{path}">Cannot be empty</span>
+                </div>
+
+                <div class="row mtop10">
+                    <label for="ftp-username">Username</label>
+                    <input id="ftp-username" type="text" name="username" th:value="${ftpConfig.username}" maxlength="255" class="form-control">
+                    <span id="ftp-username-error" class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Cannot be empty</span>
+                </div>
+
+                <div class="row mtop10">
+                    <label for="ftp-password">Password</label>
+                    <input id="ftp-password" type="text" name="password" th:value="${ftpConfig.password}" maxlength="255" class="form-control">
+                    <span id="ftp-password-error" class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Cannot be empty</span>
+                </div>
+
+                <div class="row mtop10 text-center">
+                    <button id="run-test-btn" class="btn btn-secondary mtop15" type="submit">
+                        RUN TEST
+                    </button>
+                    <div id="test-run-error-message" class="row mtop10" th:if="${runTestMessage}">
+                        <h4 th:text="${runTestMessage}"></h4>
+                    </div>
+                </div>
+            </form>
+
+            <hr class="mtop30"/>
+
+            <div th:replace="admin/ftpFilesTable :: ftpFilesTable(tableId='ftp-files-table', files=${files})">...</div>
+
+        </div>
+
+    </section>
+</div>
+</body>
+</html>

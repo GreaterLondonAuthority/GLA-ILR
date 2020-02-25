@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="11" author="ybouhass">
+
+        <createTable tableName="learner">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="date_of_birth" type="timestamp" />
+        </createTable>
+
+        <createSequence sequenceName="occupancy_record_seq" startValue="10000" incrementBy="1" />
+
+        <createTable tableName="occupancy_record">
+            <column name="id" type="int4" autoIncrement="true" defaultValueSequenceNext="occupancy_record_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="learner_id" type="BIGINT" />
+            <column name="ukprn" type="INT4" />
+            <column name="learner_reference_number" type="varchar(20)" />
+        </createTable>
+
+        <createSequence sequenceName="occupancy_record_month_breakdown_seq" startValue="10000" incrementBy="1" />
+
+        <createTable tableName="occupancy_record_month_breakdown">
+            <column name="id" type="int4" autoIncrement="true" defaultValueSequenceNext="occupancy_record_month_breakdown_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="occupancy_record_id" type="INT4" />
+            <column name="academic_year" type="INT4" />
+            <column name="period" type="INT4" />
+            <column name="on_programme_earned_cash" type="decimal" />
+            <column name="balancing_payment_earned_cash" type="decimal" />
+            <column name="aim_achievement_earned_cash" type="decimal" />
+            <column name="job_outcome_earned_cash" type="decimal" />
+            <column name="learning_support_earned_cash" type="decimal" />
+        </createTable>
+
+    </changeSet>
+
+    <changeSet id="12" author="ybouhass">
+
+        <addColumn tableName="learner">
+            <column name="learner_reference_number" type="varchar(20)" />
+            <column name="post_code" type="varchar(10)" />
+        </addColumn>
+
+        <addColumn tableName="occupancy_record">
+            <column name="post_code_prior_to_enrolment" type="varchar(10)" />
+            <column name="aim_sequence_number" type="INT4" />
+            <column name="learning_aim_reference" type="varchar(20)" />
+            <column name="learning_aim_title" type="varchar(255)" />
+            <column name="learning_start_date" type="timestamp" />
+            <column name="learning_planned_end_date" type="timestamp" />
+            <column name="completion_status" type="INT4" />
+            <column name="learning_start_date_post_code" type="varchar(10)" />
+            <column name="funding_line_type" type="varchar(255)" />
+            <column name="delivery_location_post_code" type="varchar(10)" />
+            <column name="total_on_programme_earned_cash" type="decimal" />
+            <column name="total_balancing_payment_earned_cash" type="decimal" />
+            <column name="total_aim_achievement_earned_cash" type="decimal" />
+            <column name="total_job_outcome_earned_cash" type="decimal" />
+            <column name="total_learning_support_earned_cash" type="decimal" />
+            <column name="total_earned_cash" type="decimal" />
+        </addColumn>
+
+    </changeSet>
+
+    <changeSet id="13" author="ybouhass">
+
+        <createTable tableName="message">
+            <column name="code" type="varchar(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="text" type="varchar(1000)" />
+            <column name="created_on" type="TIMESTAMP" />
+            <column name="created_by" type="varchar(255)" />
+            <column name="modified_on" type="TIMESTAMP" />
+            <column name="modified_by" type="varchar(255)" />
+            <column name="enabled" type="boolean" remarks="whether the message will display or not" />
+            <column name="code_display_name" type="varchar(255)" remarks="Display name for the code for this message." />
+        </createTable>
+
+    </changeSet>
+    <changeSet id="14" author="cmelville">
+        <createTable tableName="supplementary_data">
+            <column name="ukprn" type="INT4" remarks="This field records the Provider UKPRN and is required to match the Supplementary Data to the Individualised Learner Record (ILR).">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="learner_reference_number" type="varchar(20)" remarks="This reference number should match the Learner Reference Number return in the ILR record. This field is required enable the Learner record to be matched to the ILR.">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="investment_priority_claimed_under" type="varchar(40)" remarks="Under this field the Provider will confirm which Priority Axis/AEB Procured Lot that the learner is ESF compliant under. This field is required for monitoring ESF match delivery against the contract."/>
+            <column name="has_basic_skills" type="INT4" remarks="This field records whether a Learner does not have UK Entry Level, UK Level 1 or UK Level 2 in English, Maths or ESOL. For a participant to have basic skills on entry, they would have a minimum of 2 of the three basic skills at Entry Level, ie Maths (required) or English/ESOL. If the participant has entry level English they do not require ESOL and vice versa. This means the participant must be able to demonstrate both English literacy and Maths skills to be considered as having basic skills." />
+            <column name="is_homeless" type="INT4" remarks="This field records if a learner is homeless or affected by housing exclusion. The ESF definition of homeless or affected by housing exclusion is included in the workbook." />
+        </createTable>
+
+    </changeSet>
+
+    <changeSet id="15" author="cmelville">
+        <addColumn tableName="supplementary_data">
+            <column name="last_supplementary_data_upload" type="timestamp" />
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

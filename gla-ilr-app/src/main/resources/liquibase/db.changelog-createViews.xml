@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <!--
+    The motivation of this is to have a single file where placing the
+    definitions of the elements. Instead of having a historic file where we add
+    any change as a new changeset, like normal liquidbase approach, we have a
+    liquiBase changelog that allows updates on changesets.
+    So any change in any view or any new view we create, would normally drive to
+    a change in the changeset.
+
+    Initially this is intended to be for views, but this approach can be
+    extended to any read-only element.
+
+    The logic behind the main changeset(id: CREATE_VIEWS, author: team) is that
+    in every deployment this changeseet is executed. Every time it drops all
+    the views and create them again. This is a clean way where we avoid issues
+    where we expect the view to be recreated but we dont really need to change
+    the changeset, among other scenarios.
+    So, if you are adding a new view, please don't forget to add the
+    corresponding 'DROP VIEW IF EXISTS ..."
+
+
+    (1) Notice that if any statement inside the changeset fails, although
+    doesn't break because of failOnError='false', it won't carry on executing
+    the changeset
+
+    (2) Why don't use <dropview ..>? The problem with this approach is that
+    fails if the view doesn't exist yet. Plus the explained in (1), it won't
+    execute the changeset and would produce unexpected results. So by using
+    <sql> we fix this issue.
+    -->
+
+    <changeSet id="V_DASHBOARD_DATA_ENTITY_COUNTS_POSTGRES_CREATION"
+               author="team" dbms="postgresql" failOnError="false" runAlways="true"
+               runOnChange="true">
+        <createView viewName="v_dashboard_key_data_entity_counts" replaceIfExists="true">
+            SELECT 'Number of uploaded files' AS key,
+            text(count(*)) AS value
+            FROM data_import
+
+            UNION ALL
+
+            SELECT 'Number of funding summary records' AS key,
+            text(count(*)) AS value
+            FROM funding_summary_record
+
+            UNION ALL
+
+            SELECT 'Number of funding learner records' AS key,
+            text(count(*)) AS value
+            FROM funding_learner_record
+
+            ORDER BY key
+        </createView>
+    </changeSet>
+
+	<changeSet id="V_DASHBOARD_DATA_ENTITY_COUNTS_H2_CREATION"
+               author="team" dbms="h2" failOnError="false" runAlways="true"
+               runOnChange="true">
+        <createView viewName="v_dashboard_key_data_entity_counts" replaceIfExists="true">
+            SELECT 'Number of uploaded files' AS key,
+            TO_CHAR(count(*)) AS value
+            FROM data_import
+
+            UNION ALL
+
+            SELECT 'Number of funding summary records' AS key,
+            TO_CHAR(count(*)) AS value
+            FROM funding_summary_record
+
+            UNION ALL
+
+            SELECT 'Number of funding learner records' AS key,
+            TO_CHAR(count(*)) AS value
+            FROM funding_learner_record
+
+            ORDER BY key
+        </createView>
+	</changeSet>
+
+    <changeSet id="v_learner_summary" author="team" dbms="h2" failOnError="false" runAlways="true" runOnChange="true">
+        <createView viewName="v_learner_summary" replaceIfExists="true">
+            select ROWNUM() as id, * from (
+                select l.id as learner_id, l.learner_reference_number, occ_rec.ukprn, occ_rec.academic_year, sd.last_supplementary_data_upload from learner l
+                left join occupancy_record occ_rec on l.id = occ_rec.learner_id
+                left join supplementary_data sd on occ_rec.learner_reference_number = sd.learner_reference_number and occ_rec.ukprn = sd.ukprn
+                group by l.id, occ_rec.ukprn, occ_rec.academic_year, sd.last_supplementary_data_upload
+                order by l.learner_reference_number, occ_rec.academic_year
+            )
+        </createView>
+    </changeSet>
+
+    <changeSet id="v_learner_summary" author="team" dbms="postgresql" failOnError="false" runAlways="true" runOnChange="true" >
+        <createView viewName="v_learner_summary" >
+            select row_number() over() AS id, * from (
+                select l.id as learner_id, l.learner_reference_number, occ_rec.ukprn, occ_rec.academic_year, sd.last_supplementary_data_upload from learner l
+                left join occupancy_record occ_rec on l.id = occ_rec.learner_id
+                left join supplementary_data sd on occ_rec.learner_reference_number = sd.learner_reference_number and occ_rec.ukprn = sd.ukprn
+                group by l.id, occ_rec.ukprn, occ_rec.academic_year, sd.last_supplementary_data_upload
+                order by l.learner_reference_number, occ_rec.academic_year
+            ) as sub
+        </createView>
+    </changeSet>
+
+    <changeSet id="v_occupancy_summary" author="ybouhass" dbms="h2" failOnError="false" runAlways="true" runOnChange="true">
+        <createView viewName="v_occupancy_summary">
+            select ROWNUM() as id, * from (
+            SELECT
+            ormb.academic_year,
+            ormb.period as period,
+            ocr.period as return_period,
+            ocr.ukprn,
+            ocr.grant_type,
+            SUM(ormb.on_programme_earned_cash) as sum_on_programme_earned_cash,
+            SUM(ormb.balancing_payment_earned_cash) as sum_balancing_payment_earned_cash,
+            SUM(ormb.aim_achievement_earned_cash) as sum_aim_achievement_earned_cash,
+            SUM(ormb.job_outcome_earned_cash) sum_job_outcome_earned_cash,
+            SUM(ormb.learning_support_earned_cash) as sum_learning_support_earned_cash
+            FROM occupancy_record_month_breakdown ormb
+            INNER JOIN occupancy_record ocr on ormb.occupancy_record_id = ocr.id
+            GROUP BY ormb.academic_year, ormb.period, ocr.ukprn, ocr.grant_type, ocr.period
+            )
+        </createView>
+    </changeSet>
+
+    <changeSet id="v_occupancy_summary" author="ybouhass" dbms="postgresql" failOnError="false" runAlways="true" runOnChange="true">
+        <createView viewName="v_occupancy_summary">
+            select row_number() over() AS id, * from (
+            SELECT
+            ormb.academic_year,
+            ormb.period,
+            ocr.period as return_period,
+            ocr.ukprn,
+            ocr.grant_type,
+            SUM(ormb.on_programme_earned_cash) as sum_on_programme_earned_cash,
+            SUM(ormb.balancing_payment_earned_cash) as sum_balancing_payment_earned_cash,
+            SUM(ormb.aim_achievement_earned_cash) as sum_aim_achievement_earned_cash,
+            SUM(ormb.job_outcome_earned_cash) sum_job_outcome_earned_cash,
+            SUM(ormb.learning_support_earned_cash) as sum_learning_support_earned_cash
+            FROM occupancy_record_month_breakdown ormb
+            INNER JOIN occupancy_record ocr on ormb.occupancy_record_id = ocr.id
+            GROUP BY ormb.academic_year, ormb.period, ocr.ukprn, ocr.grant_type, ocr.period
+            ) as sub
+        </createView>
+    </changeSet>
+
+</databaseChangeLog>

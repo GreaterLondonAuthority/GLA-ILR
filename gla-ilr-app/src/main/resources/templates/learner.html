@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
+      xml:lang="en" lang="en">
+
+<head>
+    <script>
+        function toggleDisplay(id) {
+            var row = document.getElementById('details.' + id);
+            var icon = document.getElementById('icon.' + id);
+            if (row.style.display === "none") {
+                row.style.display = "";
+                icon.classList.toggle("glyphicon-chevron-right")
+                icon.classList.toggle("glyphicon-chevron-down")
+            } else {
+                row.style.display = "none";
+                icon.classList.toggle("glyphicon-chevron-right")
+                icon.classList.toggle("glyphicon-chevron-down")
+
+            }
+        }
+    </script>
+</head>
+<body>
+
+<div class="learners">
+    <section id="viewLearners" class="gla-main-section" layout:fragment="content">
+
+        <div class="page-header">
+             <h2 >
+                 Unique Learner Number <span th:text="${learner.id}"/>
+             </h2>
+        </div>
+        <div class="col-md-12 text-align-left mbottom20">
+            <h4 >Learner ID</h4>
+        </div>
+
+        <div class="col-md-4 ">
+            <div class="bolder">Learner reference</div>
+            <div th:text="${learner.learnerReferenceNumber}"/>
+        </div>
+        <div class="col-md-4 bolder">
+            Campus identifier
+        </div>
+        <div class="col-md-4 bolder">
+            Occupancy ID
+        </div>
+
+
+
+
+
+        <div class="col-md-12 text-align-left mtop20">
+            <hr/>
+            <h4 class="mtop20" >Personal Details</h4>
+        </div>
+
+        <div class="col-md-6 ">
+            <div class="bolder">Date of birth</div>
+            <div th:text="${#temporals.format(learner.dateOfBirth, 'dd/MM/yyyy')}"/>
+        </div>
+
+        <div class="col-md-6 bolder ">
+            Gender
+            <div>-</div>
+        </div>
+        <div class="col-md-6 mtop30">
+            <div class="bolder">Ethnicity</div>
+            <div>-</div>
+        </div>
+        <div class="col-md-6 mtop30">
+            <div class="bolder">First language</div>
+            <div>-</div>
+        </div>
+        <div class="col-md-6 mtop30">
+            <div class="bolder">LLDD Category</div>
+            <div th:text="${llddCategory}" />
+        </div>
+        <div class="col-md-6 mtop30">
+            <div class="bolder">Primary LLDD</div>
+            <div th:text= "${primaryLldd}" />
+        </div>
+
+
+        <div class="col-md-12 text-align-left mtop20">
+            <hr/>
+
+                <form th:action="${'/learners/' + learner.id}" method="get" th:if="${years.size() > 1}">
+                    <h4 class="mtop20 " >Course funding details: <span th:if="${selectedYear != ''}" th:text="${selectedYear + '-' + (selectedYear + 1)%100}"/>
+                        <select name="year" onchange="this.form.submit()">
+                            <option th:selected="${selectedYear == null}" value="">All</option>
+                            <option th:selected="${selectedYear == year}" th:each="year,iter : ${years}" th:value="${year}" ><span th:text="${year + '-' + (year + 1)%100}"></span></option>
+                        </select>
+                    </h4>
+                </form>
+        </div>
+        <div class="col-md-12">
+        <table class="table table-hover table-bordered table-striped" id="learner-occupancy-table"
+               th:if="${!occupancy.isEmpty()}">
+            <thead class="thead-inverse uppercase">
+            <tr>
+                <th></th>
+                <th>UKPRN</th>
+                <th>AIM TITLE</th>
+                <th>START DATE</th>
+                <th>END DATE</th>
+                <th>FUNDING TYPE</th>
+                <th>COMPLETION STATUS</th>
+            </tr>
+            <tbody th:each="occupancyRecord,iter : ${occupancy}">
+                <tr >
+                    <td >
+                        <span class="glyphicon glyphicon-chevron-right" th:onclick="|toggleDisplay('${occupancyRecord.id}')|" th:id="|icon.${occupancyRecord.id }|" />
+                    </td>
+                    <td th:text="${occupancyRecord.ukprn}"></td>
+                    <td th:text="${occupancyRecord.learningAimTitle}"></td>
+                    <td th:text="${#temporals.format(occupancyRecord.learningStartDate, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${#temporals.format(occupancyRecord.learningPlannedEndDate, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${occupancyRecord.fundingLineType}"></td>
+                    <td th:text="${occupancyRecord.completionStatus}"></td>
+                </tr>
+                <tr th:id="${'details.' + occupancyRecord.id }" style="display: none" >
+                    <td  colspan="7">
+                        <div class="col-md-12 text-align-left ">
+                            <hr/>
+                            <h4 class="mtop20" >Additional Information</h4>
+                        </div>
+                        <div class="col-md-6 ">
+                            <div class="bolder">Postcode prior to enrolment</div>
+                            <div th:text="${occupancyRecord.postCodePriorToEnrolment}"></div>
+                        </div>
+
+                        <div class="col-md-6  ">
+                            <div class="bolder">Aim reference</div>
+                            <div th:text="${occupancyRecord.learningAimReference}"></div>
+                        </div>
+
+                        <div class="col-md-6 ">
+                            <div class="bolder">Postcode following enrollment</div>
+                            <div >-</div>
+                        </div>
+
+                        <div class="col-md-6  ">
+                            <div class="bolder">Aim value</div>
+                            <div th:text="${occupancyRecord.totalAimAchievementEarnedCash}"></div>
+                        </div>
+                        <div class="col-md-6 ">
+                            <div class="bolder">Postcode at course completion</div>
+                            <div >-</div>
+                        </div>
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

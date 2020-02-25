@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="15" author="cmatias">
+        <addColumn tableName="occupancy_record">
+            <column name="grant_type" type="varchar(25)" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="16" author="cmatias">
+        <addColumn tableName="occupancy_record_month_breakdown">
+            <column name="grant_type" type="varchar(25)" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="17" author="cmatias">
+        <addColumn tableName="occupancy_record_month_breakdown">
+            <column name="sub_contracted_or_partnership_ukprn" type="varchar(255)" />
+        </addColumn>
+        <addColumn tableName="occupancy_record">
+            <column name="funding_model" type="varchar(255)" />
+            <column name="outcome" type="varchar(255)" />
+            <column name="ldfam_type_devolved_area_monitoringa" type="varchar(255)" />
+            <column name="ldfam_type_devolved_area_monitoringb" type="varchar(255)" />
+            <column name="ldfam_type_devolved_area_monitoringc" type="varchar(255)" />
+            <column name="ldfam_type_devolved_area_monitoringd" type="varchar(255)" />
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
+      xml:lang="en" lang="en">
+<body class="ng-scope">
+<div>
+
+    <section class="gla-main-section" layout:fragment="content">
+
+        <div class="ng-scope">
+
+            <div class="row login ng-scope">
+                <div class="col-xs-12">
+                    <h2>Login</h2>
+                </div>
+            </div>
+
+            <div class="row login ng-scope">
+                <div class="col-xs-12 form-top-error">
+                    <p class="error" th:if="${param.error}">Sorry, your email and password combination is not recognised</p>
+                    <p class="error" th:if="${param.logout}">You have been logged out.</p>
+                </div>
+                <div class="col-xs-1"></div>
+            </div>
+
+            <div class="row login">
+                <form id="login-form" th:action="@{/login}" method="post">
+                    <div class="col-xs-12 col-ms-8 col-sm-6 col-md-4 center-col">
+                        <div class="form-group">
+                            <label for="login-email">Email address</label>
+                            <input id="login-email" type="email" name="username" class="form-control" placeholder="Organisation email" required autofocus/>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-ms-8 col-sm-6 col-md-4 center-col">
+                        <div class="form-group mtop30">
+                            <label for="login-password">Password</label>
+                            <input id="login-password" type="password" name="password" class="form-control" placeholder="GLA ILR password"/>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12">
+                        <div class="text-center mtop30"><button class="btn btn-primary" type="submit">LOGIN</button></div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

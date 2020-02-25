@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
+      xml:lang="en" lang="en">
+<body>
+<div>
+    <section id="learners" class="gla-main-section learners" layout:fragment="content">
+
+        <div class="page-header">
+            <h2>Learners</h2>
+        </div>
+
+        <div id="upload-success-message" class="row mtop10 text-md-center" th:if="${numberOfRecordsUpdated}">
+            <h4 th:text="${numberOfRecordsUpdated}"></h4>
+        </div>
+
+        <div id="upload-error-message" class="row mtop10 text-md-center error" th:if="${errorMessage}">
+            <h4 th:text="${errorMessage}"></h4>
+        </div>
+
+        <div id="upload-error-message" class="row mtop10 text-md-center error" th:if="${errorMessageList}">
+            <div th:each="error : ${errorMessageList}" >
+                <h5 th:text="${error}"></h5>
+            </div>
+        </div>
+
+        <div class="row ">
+            <form id="data-upload-form" method="POST" enctype="multipart/form-data" action="/uploadSupplementalData">
+                <input id="file-select-input" type="file" name="file" style="display: none" onchange="document.getElementById('file-submit-btn').click()" />
+                <button id="file-select-btn" class="btn btn-secondary pull-right" type="button" style="margin-bottom: 15px"
+                        onclick="document.getElementById('file-select-input').click()">UPLOAD GLA DATA</button>
+                <button id="file-submit-btn" type="submit" style="display: none"></button>
+            </form>
+        </div>
+
+        <div class="table-responsive">
+
+            <well class="row programmes-list-actions mbottom10 search-container">
+                <div id="filter-panel" class="gla-well">
+                    <form id="learnersForm" action="/learners" method="get">
+                        <div class="col-md-3 search-column">
+                            <div class="text-align-left">Learner</div>
+                            <input id="learner-filter" type="text" placeholder="Learner number or reference" name="learner" th:value="${param.learner}" maxlength="13" class="form-control search-input allow-in-readonly">
+                        </div>
+
+                        <div class="col-md-2 search-column">
+                            <div class="text-align-left">UKPRN</div>
+                            <div class="input-group">
+                                <input id="ukprn-filter" type="number" placeholder="UKPRN" name="ukprn" th:value="${param.ukprn}" maxlength="2" class="form-control search-input allow-in-readonly">
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 search-column">
+                            <div class="text-align-left">Academic year</div>
+                            <div class="input-group">
+                                <select id="academic-year-filter" name="academicYear">
+                                    <option value="">All</option>
+                                    <option th:each="academicYear: ${academicYears}"
+                                            th:value="${academicYear}"
+                                            th:text="${#gla.fYear(academicYear)}"
+                                            th:selected="${#strings.equals(param.academicYear, #strings.toString(academicYear))}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 search-column">
+                            <div class="text-align-left"></div>
+                            <button id="search-button" class="btn btn-secondary mtop15" type="submit">Search</button>
+                        </div>
+
+                        <div class="col-md-3 filter-supplementary-data">
+                            <div class="text-align-left"></div>
+
+                            <input type="checkbox"
+                                   id="filter-by-supplementary-data"
+                                   name="filterBySupplementaryData"
+                                   class="mtop25"
+                                   th:checked="${param.filterBySupplementaryData}"
+                                   th:onclick="document.getElementById('learnersForm').submit()">
+                            Supplementary data<br>
+                        </div>
+
+                        <div class="col-md-2 search-column pull-right">
+                            <div class="text-align-left"></div>
+                            <label th:if="${param.learner != null || param.ukprn != null || param.academicYear != null}" class="mtop20 pull-right"><a href="/learners">Reset all</a></label>
+                        </div>
+
+                        <div class="col-md-12 pull-left text-align-left" >
+                            <span id="no-data-text" class="mtop20 pull-left" th:text="${noReturnData}"/>
+                        </div>
+                    </form>
+                </div>
+            </well>
+
+            <div th:replace="fragments/pagination :: pagination">...</div>
+            <table class="table table-hover table-bordered table-striped" id="learners-table" th:if="${!page.isEmpty()}">
+                <thead class="thead-inverse uppercase">
+                <tr>
+                    <th>LEARNER REFERENCE</th>
+                    <th>UNIQUE LEARNER NUMBER</th>
+                    <th>ACADEMIC YEAR</th>
+                    <th>UKPRN</th>
+                    <th>GLA SUPPLEMENTARY DATA</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="learnerRecord,iter : ${page.content}" th:onclick="'window.location.href=\'/learners/' +${learnerRecord.learnerId}+ '\''">
+                    <td th:text="${learnerRecord.learnerReferenceNumber}"></td>
+                    <td th:text="${learnerRecord.learnerId}"></td>
+                    <td th:text="${#gla.fYear(learnerRecord.academicYear)}"></td>
+                    <td th:text="${learnerRecord.ukprn}"></td>
+                    <td>
+                        <span th:if="${learnerRecord.lastSupplementaryDataUpload}" style="color: green" class="glyphicon glyphicon-ok"></span>
+                        <span    th:text="${#temporals.format(learnerRecord.lastSupplementaryDataUpload, 'dd/MM/yyyy')}"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+</body>
+</html>

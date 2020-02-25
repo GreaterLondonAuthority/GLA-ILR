@@ -1,0 +1,63 @@
+.page-header {
+    margin-top: 26px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #cecece;
+}
+
+.page-header h2 {
+    text-align: center;
+    font-size: 24px;
+    font-family: Gotham-medium,"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.pagination-summary {
+    padding: 6px 12px;
+    text-align: right;
+}
+
+.border-right {
+    border-right: 1px solid #ddd;
+}
+
+.messages-page.system-message-setup-item {
+    border: 1px solid #e2e2e2;
+    background-color: white;
+    padding: 10px;
+}
+
+.messages-page.system-message-setup-item.title {
+    color: black;
+    font-size: 15px;
+    font-family: "Gotham-medium", "Helvetica Neue", "Helvetica", "Arial", "sans-serif";
+}
+
+.messages-page.no-system-message {
+    color: #777777;
+}
+
+.system-messages-modal.checkbox {
+    width: 200px;
+}
+
+.system-messages-modal .checkbox label {
+    margin-top: 5px;
+    margin-left: 5px;
+}
+
+.learners .search-column .input-group{
+    width: 100%;
+}
+
+.search-column select{
+    height: 30px;
+    background-color: white;
+    font-size: 12px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+}
+
+.search-column select:invalid {
+    color: gray;
+}
+

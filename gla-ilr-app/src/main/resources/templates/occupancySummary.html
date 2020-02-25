@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
+      xml:lang="en" lang="en">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js"></script>
+    <script>
+        'use strict';
+
+        window.chartColors = {
+            blue: 'rgb(0, 87, 125)',
+            orange: 'rgb(233, 88, 20)',
+            purple: 'rgb(121, 45, 137)',
+            green: 'rgb(0, 141, 72)',
+            red: 'rgb(220, 160, 0)'
+        };
+    </script>
+    <style>
+        canvas {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        well {
+            padding: 20px;
+        }
+
+        .verticalLine {
+            border-left: 1px solid grey;
+            height: 70px;
+        }
+
+        .section-title {
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-family: $ font-family-bolder;
+            line-height: 35px;
+            text-align: center;
+        }
+
+        .section-value {
+            margin: 8px;
+            font-family: $ font-family-bolder;
+            line-height: 35px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <section id="occupancySummary" class="gla-main-section" layout:fragment="content">
+
+        <div class="page-header">
+            <h2>Occupancy Summary </h2>
+        </div>
+        <form th:action="${'/occupancySummary/'}" method="get" id ="search">
+            <well class="row programmes-list-actions mbottom10 search-container ng-isolate-scope">
+                <div id="filter-panel" class="gla-well">
+
+                    <div class="col-md-2 search-column">
+                        <div class="text-align-left input-group"> Academic year
+                            <select id="academic-year-filter" name="year" >
+                                <option th:selected="${selectedYear == year}"
+                                        th:each="year : ${academicYears}"
+                                        th:value="${year}">
+                                    <span th:text="${#gla.fYear(year)}"></span></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2 search-column">
+                        <div class="text-align-left input-group"> Value Type
+                            <select id="value-type-filter" name="type" >
+                                <option th:selected="${selectedType == null}" value="">Total</option>
+                                <option th:selected="${selectedType == type}"
+                                        th:each="type : ${valueTypes}"
+                                        th:value="${type}">
+                                    <span th:text="${#gla.valueTypeText(type)}"></span></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2 search-column">
+                        <div class="text-align-left input-group"> Return Period
+                            <select id="return-filter" name="period" >
+                                <option th:selected="${selectedPeriod == period}"
+                                        th:each="period : ${returnPeriods}"
+                                        th:value="${period}">
+                                    <span th:text="${#gla.returnPeriodLabel(period, selectedYear)}"></span></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2 search-column">
+                        <div class="text-align-left">UKPRN</div>
+                        <div class="input-group">
+                            <span th:if="${numberOfUkprns} == 1" th:text="${validUkprn}"></span>
+                            <input id="ukprn-filter" type="number" placeholder="ALL UKPRNs" name="ukprn"
+                                   th:if="${numberOfUkprns} != 1"
+                                   th:value="${param.ukprn}" maxlength="16"
+                                   class="form-control search-input allow-in-readonly" >
+                        </div>
+                    </div>
+                    <div class="col-md-2 search-column">
+                        <div class="text-align-left"></div>
+                        <button id="search-button" class="btn btn-secondary mtop15" type="submit">Search</button>
+                    </div>
+                    <div class="col-md-2 search-column pull-right">
+                        <div class="text-align-left"></div>
+                        <label th:if="${param.ukprn != null || param.year != null }" class="mtop20 pull-right"><a href="/occupancySummary">Reset all</a></label>
+                    </div>
+                    <div class="col-md-12 pull-left text-align-left" >
+                        <span id="no-data-text" class="mtop20 pull-left" th:if="${!noReturnData.isEmpty()}" th:text="${noReturnData}"/>
+                        <span id="return-data-metrics-text" class="mtop20 pull-left" th:if="${!returnDataMetrics.isEmpty()}" th:text="${returnDataMetrics}"/>
+                    </div>
+                </div>
+            </well>
+            <div class="section-title property-name">TOTALS <span th:text="${#gla.fYear(selectedYear)}"/></div>
+
+            <well class="row combined-totals">
+                <div class="col-md-4 text-md-center" id="unique-learners">UNIQUE LEARNERS
+                    <div class="section-value" th:text="${uniqueLearners}"/>
+                </div>
+                <div class="col-md-4 text-md-center verticalLine" id="procured-total">PROCURED DELIVERY VALUE
+                    <div class="section-value" th:text="${totalDeliveryProcured}"></div>
+                </div>
+                <div class="col-md-4 text-md-center verticalLine" id="non-procured-total">NON PROCURED DELIVERY VALUE
+                    <div class="section-value" th:text="${totalDeliveryNonProcured}"></div>
+                </div>
+            </well>
+            <div class="section-title property-name"></div>
+            <well>
+                <div class="row actions mbottom10 gla-well">
+                    <div>
+                        <canvas id="canvas"></canvas>
+                    </div>
+            </well>
+        </form>
+
+
+        <script>
+            /*<![CDATA[*/
+            var barChartData = {
+                labels: ['August', 'September', 'October', 'November', 'December', 'January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                datasets: [{
+                    label: 'Programme earned',
+                    backgroundColor: window.chartColors.blue,
+                    data: [
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[0]}]],
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[1]}]],
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[2]}]],
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[3]}]],
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[4]}]],
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[5]}]],
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[6]}]],
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[7]}]],
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[8]}]],
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[9]}]],
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[10]}]],
+                        [[${occupancySummaryMap.onProgrammeEarnedCash[11]}]]
+                    ]
+                }, {
+                    label: 'Balancing payment',
+                    backgroundColor: window.chartColors.orange,
+                    data: [
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[0]}]],
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[1]}]],
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[2]}]],
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[3]}]],
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[4]}]],
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[5]}]],
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[6]}]],
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[7]}]],
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[8]}]],
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[9]}]],
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[10]}]],
+                        [[${occupancySummaryMap.balancingPaymentEarnedCash[11]}]]
+                    ]
+                }, {
+                    label: 'Aim achievement earned',
+                    backgroundColor: window.chartColors.purple,
+                    data: [
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[0]}]],
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[1]}]],
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[2]}]],
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[3]}]],
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[4]}]],
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[5]}]],
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[6]}]],
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[7]}]],
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[8]}]],
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[9]}]],
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[10]}]],
+                        [[${occupancySummaryMap.aimAchievementEarnedCash[11]}]]
+                    ]
+                }, {
+                    label: 'Job outcome earned cash',
+                    backgroundColor: window.chartColors.green,
+                    data: [
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[0]}]],
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[1]}]],
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[2]}]],
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[3]}]],
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[4]}]],
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[5]}]],
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[6]}]],
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[7]}]],
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[8]}]],
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[9]}]],
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[10]}]],
+                        [[${occupancySummaryMap.jobOutcomeEarnedCash[11]}]]
+                    ]
+                }, {
+                    label: 'Learning support earned cash',
+                    backgroundColor: window.chartColors.red,
+                    data: [
+                        [[${occupancySummaryMap.learningSupportEarnedCash[0]}]],
+                        [[${occupancySummaryMap.learningSupportEarnedCash[1]}]],
+                        [[${occupancySummaryMap.learningSupportEarnedCash[2]}]],
+                        [[${occupancySummaryMap.learningSupportEarnedCash[3]}]],
+                        [[${occupancySummaryMap.learningSupportEarnedCash[4]}]],
+                        [[${occupancySummaryMap.learningSupportEarnedCash[5]}]],
+                        [[${occupancySummaryMap.learningSupportEarnedCash[6]}]],
+                        [[${occupancySummaryMap.learningSupportEarnedCash[7]}]],
+                        [[${occupancySummaryMap.learningSupportEarnedCash[8]}]],
+                        [[${occupancySummaryMap.learningSupportEarnedCash[9]}]],
+                        [[${occupancySummaryMap.learningSupportEarnedCash[10]}]],
+                        [[${occupancySummaryMap.learningSupportEarnedCash[11]}]]
+                    ]
+                }]
+
+            };
+            window.onload = function () {
+                var ctx = document.getElementById('canvas').getContext('2d');
+                window.myBar = new Chart(ctx, {
+                    type: 'bar',
+                    data: barChartData,
+                    options: {
+                        title: {
+                            display: true,
+                            text: '[[${selectedTypeText}]] combined delivery value'
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        responsive: true,
+                        scales: {
+                            xAxes: [{
+                                stacked: true
+                            }],
+                            yAxes: [{
+                                stacked: true
+                            }]
+                        }
+                    }
+                });
+            };
+
+            /*]]>*/
+        </script>
+
+    </section>
+</div>
+</body>
+</html>

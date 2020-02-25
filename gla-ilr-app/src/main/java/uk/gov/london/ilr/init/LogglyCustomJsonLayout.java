@@ -1,0 +1,68 @@
+/**
+ * Copyright (c) Greater London Authority, 2016.
+ *
+ * This source code is licensed under the Open Government Licence 3.0.
+ *
+ * http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+ */
+package uk.gov.london.ilr.init;
+
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.contrib.json.classic.JsonLayout;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.Map;
+
+public class LogglyCustomJsonLayout extends JsonLayout {
+
+    String hostname = null;
+    String buildNum = null;
+    String springProfile = null;
+
+    /**
+     * Gets runtime environment metadata and adds it to the formatted JSON log output.
+     */
+    @Override
+    protected void addCustomDataToJsonMap(Map<String, Object> map, ILoggingEvent iLoggingEvent) {
+//        map.put("hostname", getHostName());
+//        map.put("appbuild", getBuildNumber());
+//        map.put("springprofile", getSpringProfile());
+        map.put("username", getCurrentUsername());
+        map.put("hasCaller", iLoggingEvent.hasCallerData());
+    }
+
+    private String getCurrentUsername() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        if (securityContext != null) {
+            Authentication authentication = securityContext.getAuthentication();
+            if (authentication != null) {
+                return authentication.getName();
+            }
+        }
+        return null;
+    }
+
+//    String getHostName() {
+//        if (hostname == null) {
+//            hostname = MyCustomEnvironmentClass.getHostname();
+//        }
+//        return hostname;
+//    }
+
+//    public String getBuildNumber() {
+//        if (buildNum == null) {
+//            buildNum = MyCustomEnvironmentClass.getBuildNumber();
+//        }
+//        return buildNum;
+//    }
+
+//    public String getSpringProfile() {
+//        if (springProfile == null) {
+//            springProfile = MyCustomEnvironmentClass.getSpringProfile();
+//        }
+//        return springProfile;
+//    }
+
+}

@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xml:lang="en" lang="en">
+<body>
+
+<gla-footer class="ng-isolate-scope" th:fragment="footer">
+    <footer class="glaFooter">
+
+        <div class="glaFooter__aboutLink"></div>
+
+        <div class="copyright"> Copyright © Greater London Authority 2018 </div>
+
+        <div class="glaFooter__buildVersion ng-binding">
+            <span class="envName" th:text="${envShortName}"></span>
+            <span class="appVersion_buildNumber" th:text="${appVersionAndBuildNumberElement}"></span>
+        </div>
+
+    </footer>
+</gla-footer>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title th:text="${title}">ILR Gateway</title>
+</head>
+<body>
+
+<gla-header th:fragment="header">
+    <header>
+        <div class="gla-header" id="header">
+            <div class="row">
+                <div class="gla-mayor">MAYOR OF LONDON</div>
+                <h1 class="gla-ops" th:classappend="${envShortName}">London ILR Gateway</h1>
+
+                <div class="gla-header-user" th:if="${userLoggedIn}">
+                    <div class="gla-header-username-and-logout">
+                        <span id="hdr-username">
+                            <a ui-sref="user-account({userId:userData.username})" class="ng-binding"
+                               href="#/user-account/test.admin%40gla.com">
+                                <span class="glyphicon glyphicon-user"></span>&nbsp;<span th:text="${username}"></span>
+                            </a>
+                        </span>
+                        <span class="no-print">
+                            <span class="gla-header-vbar hidden-xs">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                        </span>
+                        <a th:href="${opsBaseUrl}" target="_blank">GLA-OPS</a>
+                        <span class="gla-header-vbar hidden-xs">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                        <a id="logout" class="logout no-print" href="logout">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <banner-message class="system-outage-banner" th:if="${bannerMessage?.enabled}">
+        <div class="gla-banner-message">
+            <div class="banner-message-text">
+                <i class="glyphicon glyphicon-exclamation-sign"></i> <span th:text="${bannerMessage?.text}"></span>
+            </div>
+        </div>
+    </banner-message>
+</gla-header>
+
+</body>
+</html>

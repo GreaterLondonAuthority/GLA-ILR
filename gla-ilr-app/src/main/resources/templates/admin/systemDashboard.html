@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
+      xml:lang="en" lang="en">
+<body>
+<div>
+    <section id="systemDashboard" class="gla-main-section system-page" layout:fragment="content">
+
+        <div class="page-header">
+            <h2>System Dashboard</h2>
+        </div>
+
+        <div class="text-center mtop40">
+            <div class="row">
+                <div id="system-description" class="col-xs-10 col-xs-offset-1 system-guidance">
+                    The system dashboard, only available to technical administration staff, provides access to a range of technical operations information.
+                    <span class="system-cloud-console-link">
+                        Additional support features are available via the
+                        <a target="_blank" th:href="@{${infoDetails.opsApplication['cloud-console-logon-url']}}">
+                            cloud infrastructure console
+                        </a>.
+                    </span>
+                </div>
+            </div>
+            <multi-panel class="system-console">
+                <well class="multipanel-container">
+                    <div class="gla-well">
+                        <div class="multi-panel">
+                            <div class="column">
+                                <div id="application-information" class="section">
+                                    <div class="section-header">Application Information</div>
+                                    <mp-field label="'Release'">
+                                        <div class="row no-gutter">
+                                            <div class="col-xs-6 field-label">Release</div>
+                                            <div class="col-xs-6 field-value" th:text="${infoDetails.opsApplication.release}"></div>
+                                        </div>
+                                    </mp-field>
+                                    <mp-field label="'Build'">
+                                        <div class="row no-gutter">
+                                            <div class="col-xs-6 field-label">Build</div>
+                                            <div class="col-xs-6 field-value" th:text="${infoDetails.opsApplication.build}"></div>
+                                        </div>
+                                    </mp-field>
+                                    <mp-field label="'Built at'">
+                                        <div class="row no-gutter">
+                                            <div class="col-xs-6 field-label">Built at</div>
+                                            <div class="col-xs-6 field-value"></div>
+                                        </div>
+                                    </mp-field>
+                                    <mp-field label="'Environment'">
+                                        <div class="row no-gutter">
+                                            <div class="col-xs-6 field-label">Environment</div>
+                                            <div class="col-xs-6 field-value" th:text="${infoDetails.opsApplication.environment}"></div>
+                                        </div>
+                                    </mp-field>
+                                </div>
+
+                                <div id="runtime-information" class="section">
+                                    <div class="section-header">Runtime Information</div>
+                                    <mp-field label="'Server time'">
+                                        <div class="row no-gutter">
+                                            <div class="col-xs-6 field-label">Server time</div>
+                                            <div class="col-xs-6 field-value" th:text="${#temporals.format(infoDetails.opsApplication['server-time'], 'dd/MM/yyyy HH:mm')}"></div>
+                                        </div>
+                                    </mp-field>
+                                    <mp-field label="'Startup time'">
+                                        <div class="row no-gutter">
+                                            <div class="col-xs-6 field-label">Startup time</div>
+                                            <div class="col-xs-6 field-value" th:text="${#temporals.format(infoDetails.opsApplication['app-start-time'], 'dd/MM/yyyy HH:mm')}"></div>
+                                        </div>
+                                    </mp-field>
+
+<!--                                    <mp-field label="key" th:each="sysMetricEntry : ${infoDetails.sysMetrics}">-->
+<!--                                        <div class="row no-gutter">-->
+<!--                                            <div class="col-xs-6 field-label" th:text="${sysMetricEntry.key}"></div>-->
+<!--                                            <div class="col-xs-6 field-value" th:text="${sysMetricEntry.value}"></div>-->
+<!--                                        </div>-->
+<!--                                    </mp-field>-->
+
+<!--                                    <mp-field label="'Load average'">-->
+<!--                                        <div class="row no-gutter">-->
+<!--                                            <div class="col-xs-6 field-label">Load average</div>-->
+<!--                                            <div class="col-xs-6 field-value" th:text="${infoDetails.sysMetrics['system.load.average.1m']}"></div>-->
+<!--                                        </div>-->
+<!--                                    </mp-field>-->
+<!--                                    <mp-field label="'Processors'">-->
+<!--                                        <div class="row no-gutter">-->
+<!--                                            <div class="col-xs-6 field-label">Processors</div>-->
+<!--                                            <div class="col-xs-6 field-value"><span class="default-value">Not provided</span></div>-->
+<!--                                        </div>-->
+<!--                                    </mp-field>-->
+<!--                                    <mp-field label="'CPU index'">-->
+<!--                                        <div class="row no-gutter">-->
+<!--                                            <div class="col-xs-6 field-label">CPU index</div>-->
+<!--                                            <div class="col-xs-6 field-value">337,101</div>-->
+<!--                                        </div>-->
+<!--                                    </mp-field>-->
+<!--                                    <mp-field label="'Active threads'">-->
+<!--                                        <div class="row no-gutter">-->
+<!--                                            <div class="col-xs-6 field-label">Active threads</div>-->
+<!--                                            <div class="col-xs-6 field-value"><span class="default-value">Not provided</span></div>-->
+<!--                                        </div>-->
+<!--                                    </mp-field>-->
+<!--                                    <mp-field label="'Peak threads'">-->
+<!--                                        <div class="row no-gutter">-->
+<!--                                            <div class="col-xs-6 field-label">Peak threads</div>-->
+<!--                                            <div class="col-xs-6 field-value"><span class="default-value">Not provided</span></div>-->
+<!--                                        </div>-->
+<!--                                    </mp-field>-->
+<!--                                    <mp-field label="'Free memory'">-->
+<!--                                        <div class="row no-gutter">-->
+<!--                                            <div class="col-xs-6 field-label">Free memory</div>-->
+<!--                                            <div class="col-xs-6 field-value"> /  KB</div>-->
+<!--                                        </div>-->
+<!--                                    </mp-field>-->
+<!--                                    <mp-field label="'GC (young)'">-->
+<!--                                        <div class="row no-gutter">-->
+<!--                                            <div class="col-xs-6 field-label">GC (young)</div>-->
+<!--                                            <div class="col-xs-6 field-value"> (ms)</div>-->
+<!--                                        </div>-->
+<!--                                    </mp-field>-->
+<!--                                    <mp-field label="'GC (tenured)'">-->
+<!--                                        <div class="row no-gutter">-->
+<!--                                            <div class="col-xs-6 field-label">GC (tenured)</div>-->
+<!--                                            <div class="col-xs-6 field-value"> (ms)</div>-->
+<!--                                        </div>-->
+<!--                                    </mp-field>-->
+<!--                                    <mp-field label="'Uptime'">-->
+<!--                                        <div class="row no-gutter">-->
+<!--                                            <div class="col-xs-6 field-label">Uptime</div>-->
+<!--                                            <div class="col-xs-6 field-value">ms</div>-->
+<!--                                        </div>-->
+<!--                                    </mp-field>-->
+                                </div>
+                            </div>
+
+                            <div class="column">
+                                <div id="key-data-values" class="section">
+                                    <div class="section-header">Key Data Values</div>
+                                    <div>
+                                        <mp-field label="key" th:each="keyDataEntry : ${infoDetails.keyData}">
+                                            <div class="row no-gutter">
+                                                <div class="col-xs-6 field-label" th:text="${keyDataEntry.key}"></div>
+                                                <div class="col-xs-6 field-value" th:text="${keyDataEntry.value}"></div>
+                                            </div>
+                                        </mp-field>
+                                    </div>
+                                </div>
+
+                                <div id="liquibase-information" class="section">
+                                    <div class="section-header">Liquibase Information</div>
+                                    <mp-field label="'Last executed file'">
+                                        <div class="row no-gutter">
+                                            <div class="col-xs-6 field-label">Last executed file</div>
+                                            <div class="col-xs-6 field-value" th:text="${infoDetails.changelogDetails.lastExecutedFileName}"></div>
+                                        </div>
+                                    </mp-field>
+                                    <mp-field label="'Last executed file time'">
+                                        <div class="row no-gutter">
+                                            <div class="col-xs-6 field-label">Last executed file time</div>
+                                            <div class="col-xs-6 field-value" th:text="${infoDetails.changelogDetails.lastExecutedFileTime}"></div>
+                                        </div>
+                                    </mp-field>
+                                    <mp-field label="'Entries'">
+                                        <div class="row no-gutter">
+                                            <div class="col-xs-6 field-label">Entries</div>
+                                            <div class="col-xs-6 field-value" th:text="${infoDetails.changelogDetails.numberEntries}"></div>
+                                        </div>
+                                    </mp-field>
+                                    <mp-field label="'Not executed'">
+                                        <div class="row no-gutter">
+                                            <div class="col-xs-6 field-label">Not executed</div>
+                                            <div class="col-xs-6 field-value" th:text="${infoDetails.changelogDetails.numberNotExecuted}"></div>
+                                        </div>
+                                    </mp-field>
+                                </div>
+
+                                <div id="feature-toggles-section" class="section">
+                                    <div class="section-header">Feature Toggles</div>
+                                    <mp-field label="'Number of features toggled on:'">
+                                        <div class="row no-gutter">
+                                            <div class="col-xs-12 field-label">Features console can be accessed <a href="/featureconsole">here</a></div>
+                                        </div>
+                                    </mp-field>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </well>
+            </multi-panel>
+        </div>
+
+    </section>
+
+</div>

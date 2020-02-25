@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <!--
+    Change set to drop view will be run before tables are created/updated.
+    -->
+    <changeSet id="DROP_VIEWS" author="team" failOnError="true"
+               runAlways="true" runOnChange="true">
+        <!--
+        DROP VIEWS
+        -->
+        <sql>
+            DROP VIEW IF EXISTS v_dashboard_key_data_entity_counts;
+            DROP VIEW IF EXISTS v_learner_summary;
+            DROP VIEW IF EXISTS v_occupancy_summary;
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>

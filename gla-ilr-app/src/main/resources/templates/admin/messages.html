@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
+      xml:lang="en" lang="en">
+<body>
+<div>
+    <section id="systemMessages" class="gla-main-section messages-page" layout:fragment="content">
+
+        <div class="page-header">
+            <h2>System Messages</h2>
+        </div>
+
+        <div th:each="message : ${messages}" class="mright15 mleft15">
+
+            <div class="mtop40" th:classappend="${message.code}+'-message-container'">
+                <form action="#" th:action="@{/messages}" th:object="${message}" method="post" class="system-message-setup-item">
+
+                    <input id="code" name="code" th:value="${message.code}" type="hidden" />
+
+                    <div class="row mtop10">
+                        <div class="pull-left title" th:text="${message.codeDisplayName}"></div>
+                        <div class="pull-right">LAST UPDATED ON: <span th:text="${#temporals.format(message.modifiedOn, 'dd/MM/yyyy')}"></span></div>
+                    </div>
+                    <div class="row mtop10">
+                        <div class="pull-left">Your message:</div>
+                        <div class="pull-right">
+                            LAST UPDATED BY: <span th:text="${message.modifiedBy}"></span>
+                        </div>
+                    </div>
+                    <div class="row mtop30 text-center">
+                        <label for="textarea" class="pull-left">Text:</label>
+                        <div id="textarea">
+                            <textarea id="banner-textarea" name="text" style="width: 100%; text-align: left" rows="5" maxlength="1000" th:text="${message.text}">
+                            </textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mtop10">
+                        <input id="enabled" name="enabled" type="checkbox" th:checked="${message.enabled}" aria-label="'Enabled'">
+                        <label for="enabled">Enabled</label>
+                    </div>
+
+                    <div class="row mtop30 mbottom10">
+                        <button class="banner-message-save-btn btn btn-primary pull-right" type="submit">SAVE</button>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>

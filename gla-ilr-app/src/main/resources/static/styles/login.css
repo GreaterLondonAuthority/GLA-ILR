@@ -1,0 +1,29 @@
+
+.login h2 {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.login h3 {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.login p {
+    margin-top: 50px;
+}
+
+.login .form-group{
+    margin-bottom: 5px;
+}
+
+.gla-welcome-message {
+    text-align: center;
+    padding-top: 5px;
+    font-size: 12px;
+    font-weight:lighter;
+}
+
+.login-email-error{
+    min-height: 14px;
+}

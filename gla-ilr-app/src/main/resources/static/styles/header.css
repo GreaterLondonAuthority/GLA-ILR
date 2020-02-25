@@ -1,0 +1,78 @@
+.gla-header {
+    margin: 0 auto;
+    height: 14rem;
+    background: url(../images/header.jpg) no-repeat;
+    background-position: center;
+    background-size: cover;
+    z-index: 999999999;
+    color: #f9f9f9;
+    padding: 12px 15px;
+}
+
+.gla-header .row {
+    height: 100%;
+    position: relative;
+}
+
+.gla-header .gla-ilr {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 21px;
+    font-weight: bold;
+    letter-spacing: 0.09rem;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+}
+
+.Dev {
+    color: #44d977;
+}
+
+.QAS {
+    color: #94c7d8;
+}
+
+.PPD {
+    color: #da726b;
+}
+
+.gla-mayor {
+    font-family: "Gotham-medium", "Helvetica Neue", "Helvetica", "Arial", "sans-serif";
+    letter-spacing: -0.75px;
+    position: absolute;
+    font-size: 1rem;
+    margin-left: 15px;
+}
+
+.gla-header #hdr-login {
+    margin-left: 1.87rem;
+}
+
+.gla-header .gla-header-user {
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-align: right;
+}
+
+.gla-header .a .logout {
+    font-weight: 900;
+    display: block;
+    position: relative;
+    z-index: 1005;
+}
+
+.gla-header .gla-header-vbar {
+    color: #cecece;
+}
+
+.gla-header .gla-header-username-and-logout {
+    margin-bottom: 4.37rem;
+}
+
+.gla-header .gla-header-org {
+    font-size: 0.75rem;
+    font-weight: bold;
+}

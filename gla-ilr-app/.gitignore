@@ -1,0 +1,11 @@
+/target
+*.log
+
+# Intellij
+.idea/
+*.iml
+*.iws
+**/*.old
+
+**/.DS_Store
+tmp/
