@@ -2,6 +2,32 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
       xml:lang="en" lang="en">
+<head>
+    <script>
+        $(document).ready(function () {
+            function updateDownloadButtonStatus() {
+                let fileTypeVal = $('#file-type').val();
+                let fileSuffixVal = $('#file-suffix').val();
+                let ukrpnVal = $('#ukprn').val();
+
+                console.log('ukprn '+ukrpnVal+'-')
+
+                if (fileTypeVal === null || fileSuffixVal === null || ukrpnVal === null) {
+                    $('#report-download-button').prop("disabled", true);
+                }
+                else {
+                    $('#report-download-button').prop("disabled", false);
+                }
+            }
+
+            $('#file-type').change(updateDownloadButtonStatus);
+            $('#file-suffix').change(updateDownloadButtonStatus);
+            $('#ukprn').change(updateDownloadButtonStatus);
+
+            updateDownloadButtonStatus();
+        });
+    </script>
+</head>
 <body>
 <div>
     <section id="reports" class="gla-main-section" layout:fragment="content">
@@ -10,27 +36,85 @@
             <h2>Reports</h2>
         </div>
 
-        <div class="mtop40 mright15 mleft15">
-            <form action="#" th:action="@{/reports}" method="post">
+        <well id="export-section" class="multipanel-container">
+            <div class="section-header">Export</div>
 
-                <div class="row mtop30 text-center">
-                    <label for="report-file-name" class="pull-left">File name (optional):</label>
-                    <input id="report-file-name" name="fileName" type="text" maxlength="255" class="form-control">
-                </div>
+            <div class="mtop40 mright15 mleft15">
+                <form action="#" th:action="@{/download}" method="post">
+                    <div class="row">
+                        <div class="col-md-4 search-column">
+                            <div class="text-align-left input-group">
+                                <label>Report title</label>
+                                <div id="read-only-file-type" class="mtop5" th:if="${fileTypes.size() == 1}" th:text="${fileTypes[0]}"></div>
+                                <select id="file-type" name="fileType" th:hidden="${fileTypes.size() == 1}">
+                                    <option disabled selected value th:if="${fileTypes.size() > 1}"></option>
+                                    <option th:each="fileType : ${fileTypes}" th:value="${fileType}">
+                                        <span th:text="${fileType}"></span>
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
 
-                <div class="row mtop30 text-center">
-                    <label for="report-sql-query" class="pull-left">SQL:</label>
-                    <div id="report-sql-query">
-                        <textarea id="sql" name="sql" style="width: 100%; text-align: left" rows="5" maxlength="1000"></textarea>
+                        <div class="col-md-4 search-column">
+                            <div class="text-align-left input-group">
+                                <label>ILR Return Period</label>
+                                <div id="read-only-file-suffix" class="mtop5" th:if="${fileSuffixes.size() == 1}" th:text="${fileSuffixes[0]}"></div>
+                                <select id="file-suffix" name="fileSuffix" th:hidden="${fileSuffixes.size() == 1}">
+                                    <option disabled selected value th:if="${fileSuffixes.size() > 1}"></option>
+                                    <option th:each="fileSuffix : ${fileSuffixes}" th:value="${fileSuffix}">
+                                        <span th:text="${fileSuffix}"></span>
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 search-column">
+                            <div class="text-align-left input-group">
+                                <label>UKPRN</label>
+                                <div id="read-only-ukprn" class="mtop5" th:if="${ukprns.size() == 1}" th:text="${ukprns[0]}"></div>
+                                <select id="ukprn" name="ukprn" th:hidden="${ukprns.size() == 1}">
+                                    <option disabled selected value th:if="${ukprns.size() > 1}"></option>
+                                    <option th:each="ukprn : ${ukprns}" th:value="${ukprn}">
+                                        <span th:text="${ukprn}"></span>
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="row mtop30 mbottom10 text-center">
-                    <button id="report-generation-button" class="btn btn-primary" type="submit">GENERATE <span class="glyphicon glyphicon-download-alt"></span></button>
-                </div>
-            </form>
+                    <div class="row mtop30 mbottom10 text-center">
+                        <button id="report-download-button" class="btn btn-primary" type="submit" disabled="true">
+                            DOWNLOAD <span class="glyphicon glyphicon-download-alt"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </well>
 
-        </div>
+        <well id="adhoc-reporting-section" class="multipanel-container mtop40" th:if="${user.isGla()}">
+            <div class="section-header">Ad-hoc reporting</div>
+
+            <div class="mtop40 mright15 mleft15">
+                <form action="#" th:action="@{/adhocReport}" method="post">
+
+                    <div class="row mtop30 text-center">
+                        <label for="report-file-name" class="pull-left">File name (optional):</label>
+                        <input id="report-file-name" name="fileName" type="text" maxlength="255" class="form-control">
+                    </div>
+
+                    <div class="row mtop30 text-center">
+                        <label for="report-sql-query" class="pull-left">SQL:</label>
+                        <div id="report-sql-query">
+                            <textarea id="sql" name="sql" style="width: 100%; text-align: left" rows="5" maxlength="100000"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mtop30 mbottom10 text-center">
+                        <button id="report-generation-button" class="btn btn-primary" type="submit">GENERATE <span class="glyphicon glyphicon-download-alt"></span></button>
+                    </div>
+                </form>
+            </div>
+        </well>
 
     </section>
 

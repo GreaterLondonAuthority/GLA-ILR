@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xml:lang="en" lang="en">
+<body>
+
+<div th:fragment="deleteButton">
+
+    <delete-button class="ng-scope ng-isolate-scope">
+
+        <form action="#" th:action="${deleteEndpoint}" method="post">
+
+            <div th:replace="fragments/confirmationModal :: confirmationModal(
+                            titleText = ${confirmationTitle},
+                            bodyText = ${confirmationText},
+                            modalId = |confirmationModal-${idToBeDeleted}|,
+                            confirmButtonText = 'DELETE',
+                            cancelButtonText = 'CANCEL')">
+            </div>
+
+            <input type="hidden" name="id" th:value="${idToBeDeleted}" />
+
+            <button aria-label="Delete row" type="button" class="btn delete-button" data-toggle="modal"
+                    th:data-target="|#confirmationModal-${idToBeDeleted}|">
+                <i class="glyphicon glyphicon-remove"></i>
+            </button>
+        </form>
+
+    </delete-button>
+
+</div>
+
+</body>
+</html>

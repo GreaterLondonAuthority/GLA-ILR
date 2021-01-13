@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
+      xml:lang="en" lang="en">
+<body>
+<div>
+    <section id="auditHistory" class="gla-main-section messages-page" layout:fragment="content">
+
+        <div class="page-header">
+            <h2>Audit History</h2>
+        </div>
+
+        <div class="table-responsive">
+
+            <div th:replace="fragments/pagination :: pagination">...</div>
+            <table class="table table-hover table-bordered table-striped" id="audit-activities"
+                   th:if="${!page.isEmpty()}">
+                <thead class="thead-inverse uppercase">
+                <tr>
+                    <th>ID</th>
+                    <th>ACTIVITY TIME</th>
+                    <th>USERNAME</th>
+                    <th>SUMMARY</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="auditActivity : ${page.content}">
+                    <td th:text="${auditActivity.id}"></td>
+                    <td th:text="${#temporals.format(auditActivity.timestamp, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${auditActivity.username}"></td>
+                    <td th:text="${auditActivity.summary}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </section>
+
+</div>

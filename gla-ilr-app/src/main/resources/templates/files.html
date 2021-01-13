@@ -9,13 +9,20 @@
         <div class="page-header">
             <h2>Imported files</h2>
         </div>
+
+        <div id="upload-error-message" class="row mtop10 text-md-center error" th:if="${errorMessageList}">
+            <div th:each="error : ${errorMessageList}" >
+                <h5 th:text="${error}"></h5>
+            </div>
+        </div>
+
         <div class="row mtop10" th:if="${opsPushMessage}">
             <h4 th:text="${opsPushMessage}"></h4>
         </div>
 
         <div class="row mtop20 mbotton 30">
-            <div id="upload-success-message" class="row mtop10 text-md-center" th:if="${successMessage}">
-                <h4 th:text="${successMessage}"></h4>
+            <div id="info-message" class="row mtop10 text-md-center" th:if="${infoMessage}">
+                <h4 th:text="${infoMessage}"></h4>
                 <h4 th:text="${numberOfRecordsUpdated}"></h4>
             </div>
 
@@ -47,17 +54,26 @@
                 </thead>
                 <tbody>
                 <tr th:each="dataImport,iter : ${dataImports}">
-                    <td th:text="${dataImport.importType.name}"></td>
+                    <td th:text="${dataImport.importType.description}"></td>
                     <td th:text="${dataImport.fileName}"></td>
                     <td th:text="${#temporals.format(dataImport.createdOn, 'dd/MM/yyyy')}"></td>
                     <td th:text="${dataImport.createdBy}"></td>
-                    <td th:text="${#strings.capitalize(#strings.toLowerCase(dataImport.status))}"></td>
+                    <td th:text="${#strings.capitalize(#strings.toLowerCase(dataImport.status)) + ( #strings.toLowerCase(dataImport.status) == 'processing' &&  dataImport.rowsProcessed > 0 ? ' (' + dataImport.rowsProcessed + ')' : '' )}"></td>
                     <td th:text="${#temporals.format(dataImport.lastExportDate, 'dd/MM/yyyy HH:mm')}"></td>
-                    <td>
+                    <td class="delete-btn-container">
                         <form id="ops-push-form" method="POST" action="/pushFundingSummaryToOps" th:if="${dataImport.canPushToOPS}">
                             <input th:type="hidden" th:name="id" th:value="${dataImport.id}"/>
                             <button id="ops-push-btn" class="btn btn-secondary" type="submit"> PUSH TO OPS</button>
                         </form>
+
+                        <div th:if="${dataImport.importType.deletable}">
+                            <div th:replace="fragments/deleteButton :: deleteButton(
+                            deleteEndpoint = 'deleteFile',
+                            idToBeDeleted = ${dataImport.id},
+                            confirmationTitle = |Delete ${dataImport.fileName}|,
+                            confirmationText = 'The file will be permanently deleted from the gateway and not available for UKPRNs to download')">
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 </tbody>

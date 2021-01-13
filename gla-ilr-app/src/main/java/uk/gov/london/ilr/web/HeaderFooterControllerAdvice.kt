@@ -21,8 +21,8 @@ import uk.gov.london.ilr.security.UserService
  * @author Steve Leach
  */
 @ControllerAdvice
-class HeaderFooterControllerAdvice(@Autowired val  environment: Environment,
-                                   @Autowired val  userService: UserService,
+class HeaderFooterControllerAdvice(@Autowired val environment: Environment,
+                                   @Autowired val userService: UserService,
                                    @Autowired val adminService: AdminService) {
 
     @ModelAttribute
@@ -30,7 +30,7 @@ class HeaderFooterControllerAdvice(@Autowired val  environment: Environment,
         model.addAttribute("title", "ILR Gateway")
         val currentUserName = userService.currentUserName()
         model.addAttribute("userLoggedIn", currentUserName != null)
-        model.addAttribute("opsBaseUrl", environment!!.opsBaseUrl())
+        model.addAttribute("opsBaseUrl", environment.opsBaseUrl())
         model.addAttribute("username", currentUserName)
         if (currentUserName != null) {
             model.addAttribute("user", userService.currentUser)
@@ -40,7 +40,7 @@ class HeaderFooterControllerAdvice(@Autowired val  environment: Environment,
 
     @ModelAttribute
     fun footerDetails(model: Model) {
-        model.addAttribute("envShortName", environment!!.shortName())
+        model.addAttribute("envShortName", environment.shortName())
         model.addAttribute("appVersionAndBuildNumberElement", environment.appVersionAndBuildNumberElement)
     }
 

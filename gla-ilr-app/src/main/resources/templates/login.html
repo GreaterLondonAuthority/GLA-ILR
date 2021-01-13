@@ -18,7 +18,8 @@
 
             <div class="row login ng-scope">
                 <div class="col-xs-12 form-top-error">
-                    <p class="error" th:if="${param.error}">Sorry, your email and password combination is not recognised</p>
+                    <p class="error" th:if="${#strings.equals(param.error, '403')}">Sorry, you are not authorised to access this service</p>
+                    <p class="error" th:if="${param.error != null && !#strings.equals(param.error, '403')}">Sorry, your email and password combination is not recognised</p>
                     <p class="error" th:if="${param.logout}">You have been logged out.</p>
                 </div>
                 <div class="col-xs-1"></div>

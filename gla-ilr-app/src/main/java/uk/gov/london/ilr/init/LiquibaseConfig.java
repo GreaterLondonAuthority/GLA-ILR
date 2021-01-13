@@ -62,37 +62,42 @@ public class LiquibaseConfig implements InfoContributor {
     }
 
     public Map<String, Object> summariseLiquibase() {
-
         List<Map<String, Object>> data = getChangeLogInfo();
-        List<Map<String, Object>> filteredData = data.stream().filter(entry -> !((String)entry.get("FILENAME")).contains("db.changelog-createViews.xml")).collect(Collectors.toList());
+        List<Map<String, Object>> filteredData = data.stream()
+            .filter(entry -> !((String) entry.get("FILENAME"))
+            .contains("db.changelog-createViews.xml"))
+            .collect(Collectors.toList());
         int numberNotExecuted = 0;
         Timestamp lastExecutedTime = null;
         Object lastExecutedFileName = null;
 
-        for(Map<String, Object> entry: filteredData) {
+        for (Map<String, Object> entry: filteredData) {
           Object o = entry.get("DATEEXECUTED");
-          if(o instanceof Timestamp) {
-            Timestamp t = (Timestamp)o;
-            if(lastExecutedTime==null || t.after(lastExecutedTime)) {
+          if (o instanceof Timestamp) {
+            Timestamp t = (Timestamp) o;
+            if (lastExecutedTime == null || t.after(lastExecutedTime)) {
               lastExecutedTime = t;
               lastExecutedFileName = entry.get("FILENAME");
             }
           }
           Object ex = entry.get("EXECTYPE");
-          if(ex!=null) {
-            if(!ex.equals("EXECUTED")) {
+          if (ex != null) {
+            if (!ex.equals("EXECUTED")) {
               numberNotExecuted += 1;
             }
           }
         }
+        return getSummaryMap(filteredData, numberNotExecuted, lastExecutedTime, lastExecutedFileName);
+    }
 
+    private Map<String, Object> getSummaryMap(List<Map<String, Object>> filteredData,
+        int numberNotExecuted, Timestamp lastExecutedTime, Object lastExecutedFileName) {
         Map<String, Object> summary = new TreeMap<>();
         summary.put("numberEntries", filteredData.size());
         summary.put("lastExecutedFileName", lastExecutedFileName);
         summary.put("lastExecutedFileTime", lastExecutedTime);
         summary.put("numberNotExecuted", numberNotExecuted);
         return summary;
-
     }
 
     public List<Map<String, Object>> getChangeLogInfo() {

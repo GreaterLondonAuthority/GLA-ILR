@@ -10,6 +10,7 @@ package uk.gov.london.ilr.security;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -25,6 +26,8 @@ import uk.gov.london.common.user.BaseUser;
 
 @Entity(name = "users")
 public class User extends BaseUser implements UserDetails, Serializable {
+
+    public static final String SYSTEM_USER = "System";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_seq_gen")
@@ -103,7 +106,7 @@ public class User extends BaseUser implements UserDetails, Serializable {
 
     @Override
     public Collection<Role> getAuthorities() {
-        return Arrays.asList(new Role("ROLE_ADMIN"));
+        return Arrays.asList(new Role(Role.OPS_ADMIN));
     }
 
     public void setAuthorities(Collection<Role> roles) {
@@ -112,11 +115,14 @@ public class User extends BaseUser implements UserDetails, Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         User user = (User) o;
-        return Objects.equals(id, user.id) &&
-                Objects.equals(username, user.username);
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username);
     }
 
     @Override
@@ -130,13 +136,13 @@ public class User extends BaseUser implements UserDetails, Serializable {
 
     public Set<Integer> getUkprns() {
         Set<Integer> ukprns = new HashSet<>();
-        roles.stream().forEach(role -> {
+        for (Role role : roles) {
             if (role.getOrganisation() != null) {
-                if(role.getOrganisation().getExternalReference() != null) {
+                if (role.getOrganisation().getExternalReference() != null) {
                     ukprns.add(Integer.parseInt(role.getOrganisation().getExternalReference()));
                 }
             }
-        });
+        }
         return ukprns;
     }
 }

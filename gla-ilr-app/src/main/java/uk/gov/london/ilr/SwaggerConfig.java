@@ -33,15 +33,14 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
-        ApiInfo apiInfo = new ApiInfo(
+        return new ApiInfo(
                 "GLA ILR API",
                 "This is the API for GLA ILR System.",
                 "0.1",
                 "Terms of service",
-                new Contact("","",""),
+                new Contact("", "", ""),
                 "License of API",
                 "API license URL", Collections.emptyList());
-        return apiInfo;
     }
 
 }

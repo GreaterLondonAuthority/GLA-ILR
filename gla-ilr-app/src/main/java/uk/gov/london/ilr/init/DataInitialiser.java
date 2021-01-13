@@ -7,6 +7,8 @@
  */
 package uk.gov.london.ilr.init;
 
+import static uk.gov.london.ilr.security.User.SYSTEM_USER;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import uk.gov.london.ilr.security.UserService;
 
 /**
  * Framework for applications to initialise their own data.
@@ -43,6 +46,9 @@ public class DataInitialiser {
     @Autowired
     Environment environment;
 
+    @Autowired
+    UserService userService;
+
     // Spring will autowire in any @Components that implement the DataInitialiserModule interface
     @Autowired
     DataInitialiserModule[] modules;
@@ -55,6 +61,8 @@ public class DataInitialiser {
     @PostConstruct
     public void initialiseData() {
         log.info("Starting data initialisation for {} modules...", modules.length);
+
+        createSystemUser();
 
         buildActionsList();
 
@@ -107,5 +115,13 @@ public class DataInitialiser {
 
     void addActionsFromModule(DataInitialiserModule module) {
         actions.addAll(Arrays.asList(module.actions()));
+    }
+
+    /**
+     * Creates system user for the data initialiser.
+     */
+    private void createSystemUser() {
+        userService.createSystemUser();
+        userService.withLoggedInUser(SYSTEM_USER);
     }
 }

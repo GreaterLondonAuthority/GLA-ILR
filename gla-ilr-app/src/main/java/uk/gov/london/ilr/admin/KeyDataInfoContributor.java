@@ -31,11 +31,11 @@ public class KeyDataInfoContributor implements InfoContributor {
     /**
      * Returns the summary of key data entity counts to be displayed on dash board page.
      */
-    private Map<String,String> getSummaryOfKeyDataEntityCounts() {
+    private Map<String, String> getSummaryOfKeyDataEntityCounts() {
 
-        final Map<String,String> keyDataEntityCounts = new TreeMap<>();
+        final Map<String, String> keyDataEntityCounts = new TreeMap<>();
 
-        RowCallbackHandler rowCallbackHandler = rs -> keyDataEntityCounts.put(rs.getString("key"),rs.getString("value"));
+        RowCallbackHandler rowCallbackHandler = rs -> keyDataEntityCounts.put(rs.getString("key"), rs.getString("value"));
 
         jdbc.query("SELECT key, value FROM v_dashboard_key_data_entity_counts", rowCallbackHandler);
 

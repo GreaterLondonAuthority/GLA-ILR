@@ -117,7 +117,6 @@
                         </xsl:for-each>
                     </table>
                 </xsl:if>
-
             </body>
         </html>
     </xsl:template>

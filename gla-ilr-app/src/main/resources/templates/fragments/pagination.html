@@ -4,16 +4,17 @@
 
 <div th:fragment="pagination">
 
-    <div class="pull-right" aria-label="Page navigation" th:if="${!page.isEmpty()}">
-        <ul class="pagination" th:with="currentUrl=(${@currentUrlWithoutParam.apply('page')})">
+    <div class="pull-right" aria-label="Page navigation" th:if="${page.totalElements > page.pageSize}">
+        <ul class="pagination pagination-sm" th:with="currentUrl=(${@currentUrlWithoutParam.apply('page')})">
             <li th:class="${page.pageNumber + 1 == 1} ? 'disabled' : ''">
                 <a th:href="@{${currentUrl}(page=${page.pageNumber - 1})}">Previous</a>
             </li>
-            <li th:each="pageNo : ${#numbers.sequence(0, page.totalPages)}"
-                th:class="${page.pageNumber + 1 eq pageNo}? 'active' : ''">
-                <a th:if="${page.pageNumber + 1  eq pageNo}" href="javascript:void(0);">
-                    <span id="active-page" th:text="${pageNo}"></span>
-                </a>
+            <li th:each="pageControl : ${page.elements()}"
+                th:classappend="${pageControl.isCurrent()}? active">
+                <a th:href="@{${currentUrl}(page=${pageControl.pageNum - 1})}"
+                   th:text=${pageControl.text}
+                   th:attrappend="id=${pageControl.isCurrent()}?active-page"
+                   href="javascript:void(0);"></a>
             </li>
             <li th:class="${page.pageNumber + 1 == page.totalPages} ? 'disabled' : ''">
                 <a id="next-page" th:href="@{${currentUrl}(page=${page.pageNumber + 1})}">Next</a>

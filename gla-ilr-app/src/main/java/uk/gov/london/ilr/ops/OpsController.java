@@ -7,7 +7,7 @@
  */
 package uk.gov.london.ilr.ops;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,17 +16,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class OpsController {
 
-    @Autowired
-    private OpsService opsService;
+    private final OpsService opsService;
 
+    public OpsController(OpsService opsService) {
+        this.opsService = opsService;
+    }
+
+    @PreAuthorize("hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM')")
     @PostMapping(value = "/pushFundingSummaryToOps")
     public String pushFundingSummaryToOps(RedirectAttributes redirectAttributes, @RequestParam("id") Integer id) {
         try {
             opsService.pushFundingSummaryToOps(id);
             redirectAttributes.addFlashAttribute("opsPushMessage", "Successfully pushed data to OPS");
-        }
-        catch (Exception e) {
-            redirectAttributes.addFlashAttribute("opsPushMessage", "Failed to push to OPS: "+e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("opsPushMessage", "Failed to push to OPS: " + e.getMessage());
         }
 
         return "redirect:/files";

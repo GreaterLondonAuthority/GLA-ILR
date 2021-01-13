@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+
+    <changeSet id="25" author="cmelville">
+        <renameTable oldTableName="learner" newTableName="learner_old" />
+        <renameTable oldTableName="supplementary_data" newTableName="supplementary_data_old" />
+
+    </changeSet>
+
+    <changeSet id="26" author="cmelville" dbms="h2">
+        <sql>
+            ALTER TABLE learner_old RENAME CONSTRAINT PK_LEARNER TO PK_LEARNER_OLD
+        </sql>
+    </changeSet>
+    <changeSet id="27" author="cmelville" dbms="postgresql">
+        <sql>
+            ALTER TABLE learner_old RENAME CONSTRAINT learner_pkey TO learner_old_pkey
+        </sql>
+    </changeSet>
+
+    <changeSet id="28" author="cmelville">
+        <createTable tableName="learner">
+            <column name="learner_reference_number" type="varchar(20)" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="ukprn" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="year" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="unique_learner_number" type="INT" />
+            <column name="date_of_birth" type="timestamp" />
+            <column name="lldd_health_problem" type="SMALLINT" />
+        </createTable>
+
+        <createTable tableName="learning_delivery">
+            <column name="learner_reference_number" type="varchar(20)" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="ukprn" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="aim_sequence_number" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="year" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="aim_reference" type="varchar(20)" />
+            <column name="start_date" type="timestamp" />
+            <column name="planned_end_date" type="timestamp" />
+            <column name="actual_end_date" type="timestamp" />
+            <column name="outcome" type="SMALLINT" />
+        </createTable>
+
+        <createTable tableName="earning_period">
+            <column name="learner_reference_number" type="varchar(20)" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="ukprn" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="aim_sequence_number" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="year" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="month" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="on_programme_earned_cash" type="decimal" />
+            <column name="balancing_payment_earned_cash" type="decimal" />
+            <column name="aim_achievement_earned_cash" type="decimal" />
+            <column name="job_outcome_earned_cash" type="decimal" />
+            <column name="learning_support_earned_cash" type="decimal" />
+        </createTable>
+        <createTable tableName="employment">
+            <column name="learner_reference_number" type="varchar(20)" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="ukprn" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="year" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="employment_status" type="SMALLINT" />
+        </createTable>
+        <createTable tableName="learning_aim">
+            <column name="year" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="aim_reference" type="varchar(20)" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="varchar(255)" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="29" author="cmelville">
+        <addColumn tableName="data_import">
+            <column name="rows_processed" type="INT4" ></column>
+        </addColumn>
+    </changeSet>
+
+   <changeSet id="30" author="cmelville">
+       <addColumn tableName="learner">
+           <column name="ethnicity" type="INT4" ></column>
+       </addColumn>
+       <addColumn tableName="learner">
+           <column name="gender" type="varchar(20)" ></column>
+       </addColumn>
+       <addColumn tableName="learner">
+           <column name="prior_attainment" type="SMALLINT" ></column>
+       </addColumn>
+       <addColumn tableName="learner">
+           <column name="postcode_prior_to_enrollment" type="VARCHAR(20)" ></column>
+       </addColumn>
+       <addColumn tableName="learner">
+           <column name="return" type="SMALLINT" ></column>
+       </addColumn>
+
+       <addColumn tableName="learning_delivery">
+           <column name="notional_nvq_level" type="varchar(20)" ></column>
+       </addColumn>
+       <addColumn tableName="learning_delivery">
+           <column name="tier_two_sector_subject_area" type="varchar(20)" ></column>
+       </addColumn>
+       <addColumn tableName="learning_delivery">
+           <column name="funding_model" type="SMALLINT" ></column>
+       </addColumn>
+       <addColumn tableName="learning_delivery">
+           <column name="completion_status" type="SMALLINT" ></column>
+       </addColumn>
+       <addColumn tableName="learning_delivery">
+           <column name="learner_employment_status" type="SMALLINT" ></column>
+       </addColumn>
+       <addColumn tableName="learning_delivery">
+           <column name="esm_type_benefit_status" type="SMALLINT" ></column>
+       </addColumn>
+       <addColumn tableName="learning_delivery">
+           <column name="return" type="SMALLINT" ></column>
+       </addColumn>
+        <addColumn tableName="earning_period">
+           <column name="total_earned_cash" type="decimal" ></column>
+       </addColumn>
+       <addColumn tableName="earning_period">
+           <column name="return" type="SMALLINT" ></column>
+       </addColumn>
+       <dropTable tableName="employment"/>
+    </changeSet>
+    <changeSet id="31" author="cmelville">
+        <renameTable newTableName="supplementary_data" oldTableName="supplementary_data_old" />
+    </changeSet>
+
+    <changeSet id="32" author="cmelville">
+        <addColumn tableName="learning_delivery">
+            <column name="funding_line_type" type="varchar(255)" />
+            <column name="partner_ukprn" type="INT4" />
+            <column name="ldfam_type_funding_indicator" type="INT4" />
+            <column name="ldfam_type_ldm_a" type="INT4" />
+            <column name="ldfam_type_ldm_b" type="INT4" />
+            <column name="ldfam_type_ldm_c" type="INT4" />
+            <column name="ldfam_type_ldm_d" type="INT4" />
+            <column name="ldfam_type_ldm_e" type="INT4" />
+            <column name="ldfam_type_ldm_f" type="INT4" />
+            <column name="ldfam_type_dam_a" type="INT4" />
+            <column name="ldfam_type_dam_b" type="INT4" />
+            <column name="ldfam_type_dam_c" type="INT4" />
+            <column name="ldfam_type_dam_d" type="INT4" />
+            <column name="ldfam_community_learning_provision_type" type="INT4" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="33" author="cmelville">
+        <addColumn tableName="learner">
+            <column name="provider_specified_learner_monitoring_a" type="varchar(255)" />
+            <column name="provider_specified_learner_monitoring_b" type="varchar(255)" />
+        </addColumn>
+        <dropColumn tableName="earning_period" columnName="total_earned_cash"/>
+    </changeSet>
+
+    <changeSet id="34" author="cmelville">
+    <dropTable tableName="funding_learner_record"/>
+    <dropTable tableName="health_problem_category"/>
+    <dropTable tableName="health_problem_record"/>
+    </changeSet>
+
+    <changeSet id="35" author="cmelville">
+        <modifyDataType tableName="learner" columnName="unique_learner_number" newDataType="bigint" />
+    </changeSet>
+
+</databaseChangeLog>

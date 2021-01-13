@@ -22,26 +22,29 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li id="top-menu-occupancy-summary" th:if="${user.hasRole('ROLE_OPS_ADMIN','ROLE_GLA_ORG_ADMIN', 'ROLE_GLA_SPM', 'ROLE_GLA_PM','ROLE_GLA_FINANCE', 'ROLE_ORG_ADMIN','ROLE_PROJECT_EDITOR')}"
-                        th:classappend="${#request.requestURI == '/occupancySummary' ? 'active':''}"><a href="/occupancySummary">OCCUPANCY SUMMARY</a></li>
-                    <li id="top-menu-files" th:if="${user.hasRole('ROLE_OPS_ADMIN','ROLE_GLA_ORG_ADMIN', 'ROLE_GLA_SPM', 'ROLE_GLA_PM','ROLE_GLA_FINANCE')}"
-                        th:classappend="${#request.requestURI == '/files' ? 'active':''}"><a href="/files">FILES</a></li>
                     <li id="top-menu-learners" th:if="${user.hasRole('ROLE_OPS_ADMIN','ROLE_GLA_ORG_ADMIN', 'ROLE_GLA_SPM', 'ROLE_GLA_PM','ROLE_GLA_FINANCE', 'ROLE_ORG_ADMIN','ROLE_PROJECT_EDITOR')}"
                         th:classappend="${#request.requestURI == '/learners' ? 'active':''}"><a href="/learners">LEARNERS</a></li>
-                    <li id="top-menu-funding-summary" th:if="${user.hasRole('ROLE_OPS_ADMIN','ROLE_GLA_ORG_ADMIN', 'ROLE_GLA_SPM', 'ROLE_GLA_PM','ROLE_GLA_FINANCE', 'ROLE_ORG_ADMIN','ROLE_PROJECT_EDITOR')}"
+
+<!--                    <li id="top-menu-occupancy-summary" th:if="${user.hasRole('ROLE_OPS_ADMIN', 'ROLE_GLA_ORG_ADMIN', 'ROLE_GLA_SPM', 'ROLE_GLA_PM', 'ROLE_GLA_FINANCE')}"-->
+<!--                        th:classappend="${#request.requestURI == '/occupancySummary' ? 'active':''}"><a href="/occupancySummary">OCCUPANCY SUMMARY</a></li>-->
+
+                    <li id="top-menu-funding-summary" th:if="${user.hasRole('ROLE_OPS_ADMIN','ROLE_GLA_ORG_ADMIN', 'ROLE_GLA_SPM', 'ROLE_GLA_PM','ROLE_GLA_FINANCE')}"
                         th:classappend="${#request.requestURI == '/fundingSummary' ? 'active':''}"><a href="/fundingSummary">FUNDING SUMMARY</a></li>
-                    <li id="top-menu-funding-learner" th:if="${user.hasRole('ROLE_OPS_ADMIN','ROLE_GLA_ORG_ADMIN', 'ROLE_GLA_SPM', 'ROLE_GLA_PM','ROLE_GLA_FINANCE')}"
-                        th:classappend="${#request.requestURI == '/fundingLearner' ? 'active':''}"><a href="/fundingLearner">FUNDING LEARNER</a></li>
-                    <li id="top-menu-reports" th:if="${user.hasRole('ROLE_OPS_ADMIN','ROLE_GLA_ORG_ADMIN', 'ROLE_GLA_SPM', 'ROLE_GLA_PM','ROLE_GLA_FINANCE')}"
-                        th:classappend="${#request.requestURI == '/reports' ? 'active':''}"><a href="/reports">REPORTS</a></li>
-                    <li id="top-menu-admin" th:if="${user.hasRole('ROLE_OPS_ADMIN','ROLE_GLA_ORG_ADMIN', 'ROLE_GLA_SPM', 'ROLE_GLA_PM','ROLE_GLA_FINANCE')}"
+
+                    <li id="top-menu-files" th:if="${user.hasRole('ROLE_OPS_ADMIN','ROLE_GLA_ORG_ADMIN', 'ROLE_GLA_SPM', 'ROLE_GLA_PM','ROLE_GLA_FINANCE')}"
+                        th:classappend="${#request.requestURI == '/files' ? 'active':''}"><a href="/files">FILES</a></li>
+
+                    <li id="top-menu-reports" th:classappend="${#request.requestURI == '/reports' ? 'active':''}">
+                        <a href="/reports">REPORTS</a>
+                    </li>
+
+                    <li id="top-menu-admin" th:if="${user.hasRole('ROLE_OPS_ADMIN', 'ROLE_TECH_ADMIN')}"
                         class="dropdown" th:classappend="${#request.requestURI.startsWith('/admin') ? 'active':''}">
                         <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true">ADMIN<span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li id="top-menu-system-dashboard" th:classappend="${#request.requestURI == '/systemDashboard' ? 'active':''}"><a href="systemDashboard">System Dashboard</a></li>
-                            <li id="top-menu-messages" th:classappend="${#request.requestURI == '/messages' ? 'active':''}"><a href="messages">Messages</a></li>
-                            <li id="top-menu-ftp-config" th:classappend="${#request.requestURI == '/ftpConfig' ? 'active':''}"><a href="ftpConfig">FTP Config</a></li>
-                            <li id="top-menu-ftp-test" th:classappend="${#request.requestURI == '/ftpTest' ? 'active':''}"><a href="ftpTest">FTP Test</a></li>
+                            <li id="top-menu-system-dashboard" th:classappend="${#request.requestURI == '/systemDashboard' ? 'active':''}"><a href="/systemDashboard">System Dashboard</a></li>
+                            <li id="top-menu-messages" th:classappend="${#request.requestURI == '/messages' ? 'active':''}"><a href="/messages">Messages</a></li>
+                            <li id="top-menu-audit-history" th:classappend="${#request.requestURI == '/auditHistory' ? 'active':''}"><a href="/auditHistory">Audit History</a></li>
                         </ul>
                     </li>
 

@@ -39,6 +39,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     OPSAuthProvider opsAuthProvider;
 
+    @Autowired
+    SGWAuthenticationFailureHandler sgwAuthenticationFailureHandler;
+
     /**
      * Configure HTTP security.
      */
@@ -56,10 +59,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/login",
                         "/healthcheck",
                         "/api/v1/features/**",
-                        "/swagger-ui.html", "/webjars/**", "/swagger-resources", "/swagger-resources/configuration/ui", "/swagger-resources/configuration/security", "/v2/api-docs").permitAll()
+                        "/swagger-ui.html", "/webjars/**", "/swagger-resources", "/swagger-resources/configuration/ui",
+                        "/swagger-resources/configuration/security", "/v2/api-docs").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .formLogin()
+                .failureHandler(sgwAuthenticationFailureHandler)
                 .loginPage("/login")
                 .permitAll()
                 .and()
@@ -68,22 +73,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/login");
     }
 
-    @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        return daoAuthenticationProvider;
-    }
-
     /**
      * Get user account details from the UserService.
      */
     @Autowired
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
-//                .authenticationProvider(daoAuthenticationProvider())
-                .authenticationProvider(opsAuthProvider);
+            //.authenticationProvider(daoAuthenticationProvider())
+            .authenticationProvider(opsAuthProvider);
+    }
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return daoAuthenticationProvider;
     }
 
     /**

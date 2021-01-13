@@ -23,14 +23,18 @@
                         </div>
 
                         <div class="col-md-2 search-column">
-                            <div class="text-align-left">Academic year</div>
-                            <div class="input-group">
-                                <input id="academic-year-filter" type="number" name="academicYear" th:value="${param.academicYear}" maxlength="4" class="form-control search-input allow-in-readonly">
+                            <div class="text-align-left input-group"> Academic year
+                                <select id="academic-year-filter" name="academicYear" >
+                                    <option th:selected="${selectedYear == academicYear}"
+                                            th:each="academicYear : ${academicYears}"
+                                            th:value="${academicYear}">
+                                        <span th:text="${#gla.financialYear(academicYear)}"></span></option>
+                                </select>
                             </div>
                         </div>
 
                         <div class="col-md-2 search-column">
-                            <div class="text-align-left">Period</div>
+                            <div class="text-align-left">Return period</div>
                             <div class="input-group">
                                 <input id="period-filter" type="number" name="period" th:value="${param.period}" maxlength="2" class="form-control search-input allow-in-readonly">
                             </div>
@@ -43,7 +47,7 @@
 
                         <div class="col-md-2 search-column pull-right">
                             <div class="text-align-left"></div>
-                            <label th:if="${param.ukprn != null || param.year != null || param.month != null}" class="mtop20 pull-right"><a href="/fundingSummary">Reset all</a></label>
+                            <label th:if="${param.ukprn != null || param.academicYear != null || param.period != null}" class="mtop20 pull-right"><a href="/fundingSummary">Reset all</a></label>
                         </div>
 
                         <div class="col-md-12 pull-left text-align-left" >
@@ -61,7 +65,7 @@
                     <th>ID</th>
                     <th>UKPRN</th>
                     <th>ACADEMIC YEAR</th>
-                    <th>PERIOD</th>
+                    <th>RETURN PERIOD</th>
                     <th>FUNDING LINE</th>
                     <th>SOURCE</th>
                     <th>CATEGORY</th>
@@ -73,7 +77,7 @@
                 <tr th:each="fundingRecord,iter : ${page.content}">
                     <td th:text="${fundingRecord.id}"></td>
                     <td th:text="${fundingRecord.ukprn}"></td>
-                    <td th:text="${#gla.fYear(fundingRecord.academicYear)}"></td>
+                    <td th:text="${#gla.financialYear(fundingRecord.academicYear)}"></td>
                     <td th:text="${fundingRecord.period}"></td>
                     <td th:text="${fundingRecord.fundingLine}"></td>
                     <td th:text="${fundingRecord.source}"></td>

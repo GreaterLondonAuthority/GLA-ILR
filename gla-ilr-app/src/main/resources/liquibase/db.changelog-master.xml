@@ -13,7 +13,13 @@
     <include file="liquibase/db.changelog-r1.0.xml" />
     <include file="liquibase/db.changelog-r1.1.xml" />
     <include file="liquibase/db.changelog-r1.2.xml" />
-
+    <include file="liquibase/db.changelog-r1.3.xml" />
+    <include file="liquibase/db.changelog-r1.4.xml" />
+    <include file="liquibase/db.changelog-r1.6.xml" />
+    <include file="liquibase/db.changelog-r1.8.xml" />
+    <include file="liquibase/db.changelog-r1.9.xml" />
+    <include file="liquibase/db.changelog-r2.2.xml" />
+    <include file="liquibase/db.changelog-r2.4.xml" />
 
     <!-- THIS NEEDS TO BE LAST -->
     <include file="liquibase/db.changelog-createViews.xml" />
