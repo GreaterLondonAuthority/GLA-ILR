@@ -1,4 +1,4 @@
-GLA Ilr
+GLA Skills Gateway
 =======
 
 The GLA Skills Gateway is a web based system that stores ILR (Individual Learning Records) data, processes validation and calculations on them and feeds the results to OPS system.
