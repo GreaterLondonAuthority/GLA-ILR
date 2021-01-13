@@ -17,20 +17,13 @@ import java.util.Map;
 
 public class LogglyCustomJsonLayout extends JsonLayout {
 
-    String hostname = null;
-    String buildNum = null;
-    String springProfile = null;
-
     /**
      * Gets runtime environment metadata and adds it to the formatted JSON log output.
      */
     @Override
-    protected void addCustomDataToJsonMap(Map<String, Object> map, ILoggingEvent iLoggingEvent) {
-//        map.put("hostname", getHostName());
-//        map.put("appbuild", getBuildNumber());
-//        map.put("springprofile", getSpringProfile());
+    protected void addCustomDataToJsonMap(Map<String, Object> map, ILoggingEvent loggingEvent) {
         map.put("username", getCurrentUsername());
-        map.put("hasCaller", iLoggingEvent.hasCallerData());
+        map.put("hasCaller", loggingEvent.hasCallerData());
     }
 
     private String getCurrentUsername() {
@@ -43,26 +36,5 @@ public class LogglyCustomJsonLayout extends JsonLayout {
         }
         return null;
     }
-
-//    String getHostName() {
-//        if (hostname == null) {
-//            hostname = MyCustomEnvironmentClass.getHostname();
-//        }
-//        return hostname;
-//    }
-
-//    public String getBuildNumber() {
-//        if (buildNum == null) {
-//            buildNum = MyCustomEnvironmentClass.getBuildNumber();
-//        }
-//        return buildNum;
-//    }
-
-//    public String getSpringProfile() {
-//        if (springProfile == null) {
-//            springProfile = MyCustomEnvironmentClass.getSpringProfile();
-//        }
-//        return springProfile;
-//    }
 
 }

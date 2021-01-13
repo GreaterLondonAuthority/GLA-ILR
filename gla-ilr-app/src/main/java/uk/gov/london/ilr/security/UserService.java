@@ -7,10 +7,15 @@
  */
 package uk.gov.london.ilr.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static uk.gov.london.common.organisation.OrganisationType.LEARNING_PROVIDER;
+import static uk.gov.london.common.organisation.OrganisationType.MANAGING_ORGANISATION;
+import static uk.gov.london.ilr.security.User.SYSTEM_USER;
+
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,43 +23,46 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import uk.gov.london.common.organisation.BaseOrganisationImpl;
 import uk.gov.london.common.organisation.OrganisationType;
-
-import static uk.gov.london.common.organisation.OrganisationType.LEARNING_PROVIDER;
-import static uk.gov.london.common.organisation.OrganisationType.MANAGING_ORGANISATION;
+import uk.gov.london.ilr.environment.Environment;
 
 @Service
 public class UserService implements UserDetailsService {
 
-    Logger log = LoggerFactory.getLogger(getClass());
-
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private Environment environment;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user =  userRepository.findByUsername(username).orElseThrow(
+        User user = userRepository.findByUsername(username).orElseThrow(
                 () -> new UsernameNotFoundException("user not found")
         );
-        return getInitialisedTestUser(user);
+        if (environment.isTestEnvironment()) {
+            return getInitialisedTestUser(user);
+        } else {
+            return user;
+        }
     }
 
     public User getCurrentUser() throws UsernameNotFoundException {
         return ((User) getAuthentication().getPrincipal());
     }
 
-    public boolean exists(String username) {
-        return userRepository.findByUsername(username).isPresent();
+    boolean exists(String username) {
+        return !userRepository.findByUsername(username).isPresent();
     }
 
-    public User getInitialisedTestUser(User user) {
+    private User getInitialisedTestUser(User user) {
         Role role = new Role("ROLE_OPS_ADMIN");
         OrganisationType learningProvider = MANAGING_ORGANISATION;
         BaseOrganisationImpl organisation = new BaseOrganisationImpl();
 
-        if (user.getUsername().startsWith("")) {
+        if (user.getUsername().startsWith("rp")) {
             learningProvider = LEARNING_PROVIDER;
             role = new Role("ROLE_ORG_ADMIN");
-            organisation.setExternalReference("10000000");
+            organisation.setExternalReference("10000020");
         }
         organisation.setType(learningProvider);
         organisation.setEntityType(organisation.getType().id());
@@ -79,13 +87,13 @@ public class UserService implements UserDetailsService {
         }
 
         if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
-            return ((org.springframework.security.core.userdetails.UserDetails)principal).getUsername();
+            return ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
         }
 
         return null;
     }
 
-    Authentication getAuthentication() {
+    private Authentication getAuthentication() {
         // This only exists to support mocking in unit tests
         return SecurityContextHolder.getContext().getAuthentication();
     }
@@ -102,6 +110,37 @@ public class UserService implements UserDetailsService {
      */
     void deleteAllUsers() {
         userRepository.deleteAll();
+    }
+
+    /**
+     * Creates a disable system user.
+     */
+    private void createSystemUser(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (!user.isPresent()) {
+            user = Optional.of(new User(username, "-"));
+        }
+        user.get().setPassword("-");
+        userRepository.save(user.get());
+    }
+
+    public void createSystemUser() {
+        createSystemUser(SYSTEM_USER);
+    }
+
+    private static void withLoggedInUser(User user) {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        Authentication auth = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
+    }
+
+    public void withLoggedInUser(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found: " + username);
+        }
+        withLoggedInUser(user.get());
     }
 
 }

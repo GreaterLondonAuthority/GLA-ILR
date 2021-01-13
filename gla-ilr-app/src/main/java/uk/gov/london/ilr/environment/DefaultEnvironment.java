@@ -97,7 +97,7 @@ public class DefaultEnvironment implements Environment, InfoContributor {
 
     @Override
     public boolean isTestEnvironment() {
-        return (isTestEnvironment != null) && (isTestEnvironment.equalsIgnoreCase("true"));
+        return isTestEnvironment != null && isTestEnvironment.equalsIgnoreCase("true");
     }
 
     @Override
@@ -124,7 +124,7 @@ public class DefaultEnvironment implements Environment, InfoContributor {
 
     @Override
     public void contribute(Info.Builder builder) {
-        Map<String,Object> data = new TreeMap<>();
+        Map<String, Object> data = new TreeMap<>();
 
         data.put("release", releaseNumber());
         data.put("build", buildNumber());

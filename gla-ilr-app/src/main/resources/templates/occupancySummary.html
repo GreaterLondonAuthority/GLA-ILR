@@ -26,6 +26,13 @@
             padding: 20px;
         }
 
+        .container-totals {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+        }
+
         .verticalLine {
             border-left: 1px solid grey;
             height: 70px;
@@ -66,12 +73,12 @@
                                 <option th:selected="${selectedYear == year}"
                                         th:each="year : ${academicYears}"
                                         th:value="${year}">
-                                    <span th:text="${#gla.fYear(year)}"></span></option>
+                                    <span th:text="${#gla.financialYear(year)}"></span></option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-2 search-column">
-                        <div class="text-align-left input-group"> Value Type
+                        <div class="text-align-left input-group"> Funding agreement
                             <select id="value-type-filter" name="type" >
                                 <option th:selected="${selectedType == null}" value="">Total</option>
                                 <option th:selected="${selectedType == type}"
@@ -82,7 +89,7 @@
                         </div>
                     </div>
                     <div class="col-md-2 search-column">
-                        <div class="text-align-left input-group"> Return Period
+                        <div class="text-align-left input-group"> Return period
                             <select id="return-filter" name="period" >
                                 <option th:selected="${selectedPeriod == period}"
                                         th:each="period : ${returnPeriods}"
@@ -111,20 +118,26 @@
                     </div>
                     <div class="col-md-12 pull-left text-align-left" >
                         <span id="no-data-text" class="mtop20 pull-left" th:if="${!noReturnData.isEmpty()}" th:text="${noReturnData}"/>
-                        <span id="return-data-metrics-text" class="mtop20 pull-left" th:if="${!returnDataMetrics.isEmpty()}" th:text="${returnDataMetrics}"/>
+                        <span id="return-data-metrics-text" class="mtop20 pull-left" th:if="${!returnDataMetrics.isEmpty() && numberOfUkprns != 1}" th:text="${returnDataMetrics}"/>
                     </div>
                 </div>
             </well>
-            <div class="section-title property-name">TOTALS <span th:text="${#gla.fYear(selectedYear)}"/></div>
+            <div class="section-title property-name">TOTALS <span th:text="${#gla.financialYear(selectedYear)}"/></div>
 
-            <well class="row combined-totals">
-                <div class="col-md-4 text-md-center" id="unique-learners">UNIQUE LEARNERS
+            <well class="container-totals combined-totals">
+                <div class="text-md-center" id="unique-learners">UNIQUE LEARNERS
                     <div class="section-value" th:text="${uniqueLearners}"/>
                 </div>
-                <div class="col-md-4 text-md-center verticalLine" id="procured-total">PROCURED DELIVERY VALUE
+
+                <span class="verticalLine" th:if="${selectedType != 'AEB_GRANT' }"></span>
+                <div class="text-md-center" id="procured-total"
+                     th:if="${selectedType != 'AEB_GRANT' }">PROCURED DELIVERY VALUE
                     <div class="section-value" th:text="${totalDeliveryProcured}"></div>
                 </div>
-                <div class="col-md-4 text-md-center verticalLine" id="non-procured-total">NON PROCURED DELIVERY VALUE
+
+                <span class="verticalLine" th:if="${selectedType != 'AEB_PROCURED' }"></span>
+                <div class="text-md-center" id="non-procured-total"
+                     th:if="${selectedType != 'AEB_PROCURED' }">GRANT DELIVERY VALUE
                     <div class="section-value" th:text="${totalDeliveryNonProcured}"></div>
                 </div>
             </well>

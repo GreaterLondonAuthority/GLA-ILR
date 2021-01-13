@@ -44,12 +44,10 @@ class AdminService @Autowired constructor(val userService: UserService,
         message.modifiedOn = environment.now()
         messageRepository.save(message)
 
-        auditService.auditCurrentUserActivity("Updated banner message. Code: " + model.code
-                                                    + " new text: " + model.text)
+        auditService.auditCurrentUserActivity("Updated system message ${model.code} with text '${model.text}'")
     }
 
     fun getInfoDetails(): Map<String, Any> {
-
         metricsEndpoint.listNames()
 
         val builder = Info.Builder()

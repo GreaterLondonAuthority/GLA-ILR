@@ -11,17 +11,12 @@
 
 	<artifactId>gla-ilr</artifactId>
 	<packaging>war</packaging>
-	<description>GLA IRL Gateway</description>
+	<description>GLA Skills Gateway</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
-		<junit.version>4.12</junit.version>
-		<kotlin.version>1.2.71</kotlin.version>
 	</properties>
-
-
 
 	<dependencies>
 		<dependency>
@@ -47,30 +42,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.integration</groupId>
-			<artifactId>spring-integration-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.integration</groupId>
-			<artifactId>spring-integration-file</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.integration</groupId>
-			<artifactId>spring-integration-xml</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.integration</groupId>
-			<artifactId>spring-integration-ftp</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.integration</groupId>
-			<artifactId>spring-integration-sftp</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.integration</groupId>
-			<artifactId>spring-integration-jdbc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.liquibase</groupId>
@@ -100,6 +71,22 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -142,7 +129,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery</artifactId>
-			<version>3.3.1</version>
+			<version>3.5.1</version>
 		</dependency>
 
 		<dependency>
@@ -159,13 +146,19 @@
 		<dependency>
 			<groupId>uk.gov.london</groupId>
 			<artifactId>gla-common</artifactId>
-			<version>0.0.6-SNAPSHOT</version>
+			<version>0.0.19-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-csv</artifactId>
 			<version>1.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
 		</dependency>
 
 		<dependency>
@@ -189,16 +182,22 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.9.3</version>
 		</dependency>
 		<dependency>
 			<groupId>io.springlets</groupId>
 			<artifactId>springlets-boot-starter-data-jpa</artifactId>
 			<version>1.2.0.RELEASE</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.querydsl</groupId>
+			<artifactId>querydsl-apt</artifactId>
+			<version>4.2.1</version>
+		</dependency>
 		<dependency>
 			<groupId>com.querydsl</groupId>
 			<artifactId>querydsl-jpa</artifactId>
+			<version>4.2.1</version>
 		</dependency>
 
 		<dependency>
@@ -206,7 +205,6 @@
 			<artifactId>zip4j</artifactId>
 			<version>1.3.2</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>com.fasterxml.jackson.module</groupId>
@@ -216,6 +214,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-reflect</artifactId>
+			<version>${kotlin.version}</version>
 		</dependency>
 
 		<dependency>
@@ -230,11 +229,10 @@
 			<version>${kotlin.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>1.4.192</version>
 			<scope>compile</scope>
 		</dependency>
 
@@ -249,67 +247,10 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-			<!--<plugin>-->
-				<!--<groupId>nl.geodienstencentrum.maven</groupId>-->
-				<!--<artifactId>sass-maven-plugin</artifactId>-->
-				<!--<version>3.7.0</version>-->
-				<!--<executions>-->
-					<!--<execution>-->
-						<!--<id>generate-css</id>-->
-						<!--<phase>generate-resources</phase>-->
-						<!--<goals>-->
-							<!--<goal>update-stylesheets</goal>-->
-						<!--</goals>-->
-						<!--<configuration>-->
-							<!--<sassSourceDirectory>${basedir}/src/main/resources/sass</sassSourceDirectory>-->
-							<!--<destination>${basedir}/src/main/resources/static/styles</destination>-->
-						<!--</configuration>-->
-					<!--</execution>-->
-				<!--</executions>-->
-			<!--</plugin>-->
-
-			<!--<plugin>-->
-				<!--<groupId>com.github.warmuuh</groupId>-->
-				<!--<artifactId>libsass-maven-plugin</artifactId>-->
-				<!--<version>0.2.10-libsass_3.5.3</version>-->
-				<!--<executions>-->
-					<!--<execution>-->
-						<!--<phase>generate-resources</phase>-->
-						<!--<goals>-->
-							<!--<goal>compile</goal>-->
-						<!--</goals>-->
-					<!--</execution>-->
-				<!--</executions>-->
-				<!--<configuration>-->
-					<!--<inputPath>${basedir}/src/main/sass/</inputPath>-->
-					<!--<outputPath>${basedir}/src/main/resources/static/styles/</outputPath>-->
-				<!--</configuration>-->
-			<!--</plugin>-->
-
-			<plugin>
-				<groupId>br.com.ingenieux</groupId>
-				<artifactId>beanstalk-maven-plugin</artifactId>
-				<version>1.5.0</version>
-				<configuration>
-					<applicationName></applicationName>
-					<s3Bucket></s3Bucket>
-					<s3Key>${project.build.finalName}-${maven.build.timestamp}.war</s3Key>
-					<versionLabel>gla-ilr-${build.release}.${build.number}</versionLabel>
-					<environmentName></environmentName>
-					<environmentRef></environmentRef>
-					<regionName></regionName>
-					<artifactFile>../gla-ilr.war</artifactFile>
-					<serverId></serverId>
-					<silentUpload>false</silentUpload>
-					<verbose>true</verbose>
-					<multipartUpload>false</multipartUpload>
-				</configuration>
-			</plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.1</version>
                 <executions>
                     <execution>
                         <id>validate</id>
@@ -317,7 +258,7 @@
                         <configuration>
                             <configLocation>${basedir}/config/checkstyle.xml</configLocation>
                             <violationSeverity>warning</violationSeverity>
-                            <maxAllowedViolations>100</maxAllowedViolations>
+                            <maxAllowedViolations>20</maxAllowedViolations>
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>false</failsOnError>
@@ -344,6 +285,9 @@
 						<exclude>**/LiquibaseConfig.*</exclude>
 						<exclude>**/LogglyCustomJsonLayout.*</exclude>
 						<exclude>**/SwaggerConfig.*</exclude>
+						<exclude>**/QFundingSummaryRecord.*</exclude>
+						<exclude>**/QLearnerPK.*</exclude>
+						<exclude>**/QLearnerSummary.*</exclude>
 					</excludes>
 				</configuration>
 				<executions>
@@ -367,7 +311,7 @@
 										<limit implementation="org.jacoco.report.check.Limit">
 											<counter>INSTRUCTION</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.50</minimum>
+											<minimum>0.80</minimum>
 										</limit>
 										<limit implementation="org.jacoco.report.check.Limit">
 											<counter>CLASS</counter>
@@ -474,6 +418,25 @@
 			</plugin>
 
 			<plugin>
+				<groupId>com.mysema.maven</groupId>
+				<artifactId>apt-maven-plugin</artifactId>
+				<version>1.1.3</version>
+				<executions>
+					<execution>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>process</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+							<showWarnings>true</showWarnings>
+							<processor>com.querydsl.apt.QuerydslAnnotationProcessor</processor>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>xml-maven-plugin</artifactId>
 				<executions>
@@ -505,6 +468,5 @@
 
 		</plugins>
 	</build>
-
 
 </project>

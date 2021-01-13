@@ -12,6 +12,7 @@ import org.togglz.core.manager.TogglzConfig;
 import org.togglz.core.repository.StateRepository;
 import org.togglz.core.user.UserProvider;
 import org.togglz.spring.security.SpringSecurityUserProvider;
+import uk.gov.london.ilr.security.Role;
 
 public class IlrTogglzConfiguration implements TogglzConfig {
 
@@ -27,7 +28,7 @@ public class IlrTogglzConfiguration implements TogglzConfig {
 
     @Override
     public UserProvider getUserProvider() {
-        return new SpringSecurityUserProvider("ROLE_ADMIN");
+        return new SpringSecurityUserProvider(Role.OPS_ADMIN);
     }
 
 }

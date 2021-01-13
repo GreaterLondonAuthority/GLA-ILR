@@ -11,7 +11,7 @@
         <div class="gla-header" id="header">
             <div class="row">
                 <div class="gla-mayor">MAYOR OF LONDON</div>
-                <h1 class="gla-ops" th:classappend="${envShortName}">London ILR Gateway</h1>
+                <h1 class="gla-ops" th:classappend="${envShortName}">Skills Gateway</h1>
 
                 <div class="gla-header-user" th:if="${userLoggedIn}">
                     <div class="gla-header-username-and-logout">
@@ -26,7 +26,7 @@
                         </span>
                         <a th:href="${opsBaseUrl}" target="_blank">GLA-OPS</a>
                         <span class="gla-header-vbar hidden-xs">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                        <a id="logout" class="logout no-print" href="logout">Logout</a>
+                        <a id="logout" class="logout no-print" href="/logout">Logout</a>
                     </div>
                 </div>
             </div>

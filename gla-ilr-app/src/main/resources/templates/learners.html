@@ -2,12 +2,37 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
       xml:lang="en" lang="en">
+<head>
+    <script>
+        function goToIndividualLearnerPage(learnerId, ukprn, year) {
+            if ([[${user.isGla() && learnerDetailsPageEnabled}]]) {
+                window.location.href = '/learners/lrn/' + learnerId + '/ukprn/' + ukprn + '/year/' + year;
+            }
+        }
+
+        function toggleDisplay(id) {
+            var row = document.getElementById('details.' + id);
+            var icon = document.getElementById('icon.' + id);
+            if (row.style.display === "none") {
+                row.style.display = "";
+                icon.classList.toggle("glyphicon-chevron-right")
+                icon.classList.toggle("glyphicon-chevron-down")
+            } else {
+                row.style.display = "none";
+                icon.classList.toggle("glyphicon-chevron-right")
+                icon.classList.toggle("glyphicon-chevron-down")
+
+            }
+        }
+    </script>
+</head>
+
 <body>
 <div>
     <section id="learners" class="gla-main-section learners" layout:fragment="content">
 
         <div class="page-header">
-            <h2>Learners</h2>
+            <h2 >Learners</h2>
         </div>
 
         <div id="upload-success-message" class="row mtop10 text-md-center" th:if="${numberOfRecordsUpdated}">
@@ -22,6 +47,11 @@
             <div th:each="error : ${errorMessageList}" >
                 <h5 th:text="${error}"></h5>
             </div>
+        </div>
+
+        <div th:if="${errorFileExists}" class="row mtop10 text-md-center">
+            <div><a th:href="${downloadURL}"><img src="/images/download.svg"/></a></div>
+            <div><a th:href="${downloadURL}"> Download the supplementary error file, amend the contents and try again</a></div>
         </div>
 
         <div class="row ">
@@ -57,8 +87,19 @@
                                     <option value="">All</option>
                                     <option th:each="academicYear: ${academicYears}"
                                             th:value="${academicYear}"
-                                            th:text="${#gla.fYear(academicYear)}"
+                                            th:text="${#gla.financialYear(academicYear)}"
                                             th:selected="${#strings.equals(param.academicYear, #strings.toString(academicYear))}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 search-column">
+                            <div class="text-align-left">GLA data</div>
+                            <div class="input-group">
+                                <select id="filter-by-supplementary-data" name="filterBySupplementaryData">
+                                    <option th:value="${null}" th:selected="${#strings.equals(param.filterBySupplementaryData, null)}">All</option>
+                                    <option th:value="${true}" th:selected="${#strings.equals(param.filterBySupplementaryData, true)}">Data uploaded</option>
+                                    <option th:value="${false}" th:selected="${#strings.equals(param.filterBySupplementaryData, false)}">Data not uploaded</option>
                                 </select>
                             </div>
                         </div>
@@ -66,18 +107,6 @@
                         <div class="col-md-2 search-column">
                             <div class="text-align-left"></div>
                             <button id="search-button" class="btn btn-secondary mtop15" type="submit">Search</button>
-                        </div>
-
-                        <div class="col-md-3 filter-supplementary-data">
-                            <div class="text-align-left"></div>
-
-                            <input type="checkbox"
-                                   id="filter-by-supplementary-data"
-                                   name="filterBySupplementaryData"
-                                   class="mtop25"
-                                   th:checked="${param.filterBySupplementaryData}"
-                                   th:onclick="document.getElementById('learnersForm').submit()">
-                            Supplementary data<br>
                         </div>
 
                         <div class="col-md-2 search-column pull-right">
@@ -96,25 +125,63 @@
             <table class="table table-hover table-bordered table-striped" id="learners-table" th:if="${!page.isEmpty()}">
                 <thead class="thead-inverse uppercase">
                 <tr>
+                    <th></th>
                     <th>LEARNER REFERENCE</th>
                     <th>UNIQUE LEARNER NUMBER</th>
                     <th>ACADEMIC YEAR</th>
                     <th>UKPRN</th>
-                    <th>GLA SUPPLEMENTARY DATA</th>
+                    <th>INVESTMENT PRIORITY</th>
+                    <th>BASIC SKILLS</th>
+                    <th>HOMELESS</th>
                 </tr>
                 </thead>
-                <tbody>
-                    <tr th:each="learnerRecord,iter : ${page.content}" th:onclick="'window.location.href=\'/learners/' +${learnerRecord.learnerId}+ '\''">
-                    <td th:text="${learnerRecord.learnerReferenceNumber}"></td>
-                    <td th:text="${learnerRecord.learnerId}"></td>
-                    <td th:text="${#gla.fYear(learnerRecord.academicYear)}"></td>
-                    <td th:text="${learnerRecord.ukprn}"></td>
-                    <td>
-                        <span th:if="${learnerRecord.lastSupplementaryDataUpload}" style="color: green" class="glyphicon glyphicon-ok"></span>
-                        <span    th:text="${#temporals.format(learnerRecord.lastSupplementaryDataUpload, 'dd/MM/yyyy')}"/>
-                    </td>
-                </tr>
-                </tbody>
+                <th:block th:each="learnerRecord,iter : ${page.content}">
+                    <tr th:data1="${learnerRecord.id.learnerReferenceNumber}"
+                        th:onclick="|goToIndividualLearnerPage(this.getAttribute('data1'),'${learnerRecord.id.ukprn}' ,'${learnerRecord.id.year}')|">
+                        <td>
+                            <span class="glyphicon glyphicon-chevron-right"
+                                  th:data1="${learnerRecord.id.toString()}"
+                                  th:onclick="|event.stopPropagation();toggleDisplay(this.getAttribute('data1'))|"
+                                  th:if="${learnerRecord.lastSupplementaryDataUpload}"
+                                  th:id="|icon.${learnerRecord.id.toString()}|"></span>
+                        </td>
+                        <td th:text="${learnerRecord.id.learnerReferenceNumber}"></td>
+                        <td th:text="${learnerRecord.learnerId}"></td>
+                        <td th:text="${#gla.financialYear(learnerRecord.id.year)}"></td>
+                        <td th:text="${learnerRecord.id.ukprn}"></td>
+                        <td th:text="${learnerRecord.investmentPriorityClaimedUnder}"></td>
+                        <td th:text="${learnerRecord.hasBasicSkills}"></td>
+                        <td th:text="${learnerRecord.homeless}"></td>
+                    </tr>
+                    <tr th:id="${'details.' + learnerRecord.id.toString()}" style="display: none">
+                        <td colspan="8">
+                            <div class="col-md-12 text-align-left ">
+                                <h4>Additional Information</h4>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="bolder">Highest educational attainment at ESF start</div>
+                                <div id="highestEducationalAttainmentAtEsfStart" th:text="${learnerRecord.highestEducationalAttainmentAtEsfStart}"></div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="bolder">Progressing into education or training as ESF result</div>
+                                <div id="progressingIntoEducationOrTrainingAsEsfResult" th:text="${learnerRecord.progressingIntoEducationOrTrainingAsEsfResult}"></div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="bolder">Start date for education or training ESF result</div>
+                                <div id="startDateForEducationOrTrainingEsfResult" th:text="${learnerRecord.startDateForEducationOrTrainingEsfResult}"></div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="bolder">Has left ESF program</div>
+                                <div id="hasLeftEsfProgram" th:text="${learnerRecord.hasLeftEsfProgram}"></div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="bolder">ESF leave date</div>
+                                <div id="esfLeaveDate" th:text="${learnerRecord.esfLeaveDate}"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </th:block>
             </table>
         </div>
     </section>

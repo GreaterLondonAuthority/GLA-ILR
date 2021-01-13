@@ -24,7 +24,7 @@ class ReportService @Autowired constructor(val jdbcTemplate: JdbcTemplate) {
 
     private var log = LoggerFactory.getLogger(javaClass)
 
-    fun generateReport(sql: String, out: OutputStreamWriter) {
+    fun generateAdhocReport(sql: String, out: OutputStreamWriter) {
         log.info("request to execute SQL: $sql")
 
         // "queryForRowSet" does not allow execution of modifying SQL scripts
@@ -48,8 +48,8 @@ class ReportService @Autowired constructor(val jdbcTemplate: JdbcTemplate) {
         return headers
     }
 
-    private fun rowSetCsvValues(rowSet: SqlRowSet, headers: Set<String>): Map<String, Any> {
-        val csvRow = HashMap<String, Any>()
+    private fun rowSetCsvValues(rowSet: SqlRowSet, headers: Set<String>): Map<String, String?> {
+        val csvRow = HashMap<String, String?>()
         for (header in headers) {
             csvRow[header.toLowerCase()] = rowSet.getString(header)
         }

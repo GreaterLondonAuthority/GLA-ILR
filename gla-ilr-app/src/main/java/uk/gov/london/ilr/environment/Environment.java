@@ -17,12 +17,19 @@ import java.time.OffsetDateTime;
  */
 public interface Environment {
     String shortName();
+
     String fullName();
+
     String releaseNumber();
+
     String buildNumber();
+
     String getAppVersionAndBuildNumberElement();
+
     String profileName();
+
     String hostName();
+
     String opsBaseUrl();
 
     /**

@@ -16,7 +16,6 @@ import org.togglz.core.annotation.Label;
 public enum IlrFeature implements Feature {
 
     @Label("OPS Connection") OPS_CONNECTION,
-    @Label("SFA FTP synchronisation") SFA_FTP_SYNC
+    @Label("Learner details page") LEARNER_DETAILS_PAGE
 
 }
-

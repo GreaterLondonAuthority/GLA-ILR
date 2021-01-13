@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="40" author="cmatias">
+        <renameColumn tableName="ref_data_mapping" oldColumnName="mapping_type" newColumnName="attribute" />
+        <renameColumn tableName="ref_data_mapping" oldColumnName="value" newColumnName="detailed_value" />
+        <addColumn tableName="ref_data_mapping">
+            <column name="headline_value" type="varchar(2000)" />
+            <column name="year" type="INT4" />
+        </addColumn>
+
+        <dropIndex tableName="ref_data_mapping" indexName="ref_data_mapping_idx"/>
+        <createIndex indexName="ref_data_mapping_idx" tableName="ref_data_mapping" unique="true">
+            <column name="year"/>
+            <column name="attribute"/>
+            <column name="code"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="41" author="jsingh">
+        <createTable tableName="provider">
+            <column name="year" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="ukprn" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="provider_name" type="varchar(250)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <addColumn tableName="learner">
+            <column name="family_name" type="varchar(100)" />
+            <column name="given_name" type="varchar(100)" />
+        </addColumn>
+
+        <addColumn tableName="learning_delivery">
+            <column name="ldfam_type_dam_e" type="varchar(3)" />
+            <column name="ldfam_type_dam_f" type="varchar(3)" />
+            <column name="ldfam_type_household_situation_a" type="varchar(5)" />
+            <column name="ldfam_type_household_situation_b" type="varchar(5)" />
+            <column name="local_authority_code" type="varchar(9)" />
+            <column name="partner_ukprn_name" type="varchar(250)"/>
+            <column name="esm_type_employment_intensity" type="SMALLINT" />
+            <column name="start_for_funding_purposes" type="SMALLINT"/>
+            <column name="tier_two_sector_subject_area_name" type="varchar(100)" />
+        </addColumn>
+
+    </changeSet>
+
+    <changeSet id="41a" author="cmatias">
+        <sql> delete from ref_data_mapping where year is null </sql>
+    </changeSet>
+
+    <changeSet id="42" author="cmatias">
+        <addNotNullConstraint columnDataType="INT4" columnName="year" tableName="ref_data_mapping" />
+        <dropNotNullConstraint tableName="ref_data_mapping" columnName="detailed_value" columnDataType="varchar(2000)"/>
+    </changeSet>
+
+</databaseChangeLog>

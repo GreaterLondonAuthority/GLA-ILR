@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="21" author="ktran">
+        <addColumn tableName="occupancy_record">
+            <column name="notional_nvq_level" type="varchar(25)" />
+            <column name="tier_two_sector_subject_area" type="decimal(12,2)" />
+            <column name="other_funding_adjustment" type="varchar(255)" />
+            <column name="original_learning_start_date" type="timestamp" />
+            <column name="learning_actual_end_date" type="timestamp" />
+            <column name="ldfam_Type_Source_Of_Funding" type="int" />
+            <column name="ldfam_Type_Full_Or_Co_Funding_Indicator" type="int" />
+            <column name="ldfam_Type_Learning_Support_Funding" type="varchar(255)" />
+            <column name="ldfam_Type_Lsf_Date_Applies_From" type="timestamp" />
+            <column name="ldfam_Type_Lsf_Date_Applies_To" type="timestamp" />
+            <column name="achievement_element" type="decimal(12,6)" />
+            <column name="premerger_ukprn" type="varchar(255)" />
+            <column name="campus_identifier" type="varchar(255)" />
+            <column name="applicable_funding_rate_from_esol_hours" type="int" />
+            <column name="applicable_funding_rate" type="int" />
+            <column name="applicable_programme_weighting" type="varchar(25)" />
+            <column name="aim_value" type="decimal(12,5)" />
+            <column name="funding_adjustment_for_prior_learning" type="varchar(255)" />
+            <column name="additional_delivery_hours" type="varchar(255)" />
+            <column name="applicable_area_from_source_of_funding" type="varchar(25)" />
+            <column name="learning_delivery_funding_and_monitoring_type" type="varchar(255)" />
+            <column name="planned_number_of_on_programme_instalments" type="int" />
+            <column name="achievement_percentage" type="decimal(12,2)" />
+            <column name="non_public_funded_contribution" type="int" />
+            <column name="capping_factor" type="decimal(12,6)" />
+            <column name="area_uplift" type="int" />
+            <column name="disadvantage_uplift" type="decimal(12,5)" />
+            <column name="date_used_for_uplifts_and_other_lookups" type="timestamp" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="22" author="ktran">
+        <renameColumn tableName="occupancy_record" oldColumnName="ldfam_Type_Source_Of_Funding" newColumnName="ldfam_type_source_of_funding"/>
+        <renameColumn tableName="occupancy_record" oldColumnName="ldfam_Type_Full_Or_Co_Funding_Indicator" newColumnName="ldfam_type_full_or_co_funding_indicator"/>
+        <renameColumn tableName="occupancy_record" oldColumnName="ldfam_Type_Learning_Support_Funding" newColumnName="ldfam_type_learning_support_funding"/>
+        <renameColumn tableName="occupancy_record" oldColumnName="ldfam_Type_Lsf_Date_Applies_From" newColumnName="ldfam_type_lsf_date_applies_from"/>
+        <renameColumn tableName="occupancy_record" oldColumnName="ldfam_Type_Lsf_Date_Applies_To" newColumnName="ldfam_type_lsf_date_applies_to"/>
+    </changeSet>
+
+</databaseChangeLog>

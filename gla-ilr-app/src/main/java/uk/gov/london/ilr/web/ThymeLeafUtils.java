@@ -11,18 +11,18 @@ package uk.gov.london.ilr.web;
 import uk.gov.london.common.skills.SkillsGrantType;
 
 public class ThymeLeafUtils {
-    public String fYear(Integer year) {
-        if(year == null){
+    public String financialYear(Integer year) {
+        if (year == null) {
             return null;
         }
         return year + "/" + ((year % 100) + 1);
     }
 
     public String valueTypeText(String type) {
-        if(type.equalsIgnoreCase(SkillsGrantType.AEB_PROCURED.name())){
+        if (type.equalsIgnoreCase(SkillsGrantType.AEB_PROCURED.name())) {
             return "Procured";
         } else {
-            return "Non Procured";
+            return "Grant";
         }
     }
 
@@ -40,24 +40,22 @@ public class ThymeLeafUtils {
     }
 
     public String getMonthForInt(int month) {
-        String monthString;
         switch (month) {
             case 1:
-            case 13: monthString = "September";     break;
+            case 13: return "Sep";
             case 2:
-            case 14: monthString = "October";       break;
-            case 3:  monthString = "November";      break;
-            case 4:  monthString = "December";      break;
-            case 5:  monthString = "January";       break;
-            case 6:  monthString = "February";      break;
-            case 7:  monthString = "March";         break;
-            case 8:  monthString = "April";         break;
-            case 9:  monthString = "May";           break;
-            case 10: monthString = "June";          break;
-            case 11: monthString = "July";          break;
-            case 12: monthString = "August";        break;
-            default: monthString = "Invalid month"; break;
+            case 14: return "Oct";
+            case 3:  return "Nov";
+            case 4:  return "Dec";
+            case 5:  return "Jan";
+            case 6:  return "Feb";
+            case 7:  return "Mar";
+            case 8:  return "Apr";
+            case 9:  return "May";
+            case 10: return "Jun";
+            case 11: return "Jul";
+            case 12: return "Aug";
+            default: return "Inv";
         }
-        return monthString.substring(0,3);
     }
 }

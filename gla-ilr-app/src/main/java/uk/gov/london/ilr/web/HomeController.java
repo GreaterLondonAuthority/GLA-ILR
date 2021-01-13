@@ -11,32 +11,42 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import uk.gov.london.ilr.data.IlrDataService;
+import uk.gov.london.ilr.file.DataImportService;
 import uk.gov.london.ilr.environment.Environment;
+import uk.gov.london.ilr.security.User;
+import uk.gov.london.ilr.security.UserService;
 
 import java.security.Principal;
+
+import static uk.gov.london.common.user.BaseRole.TECH_ADMIN;
 
 @Controller
 class HomeController {
 
     @Autowired
-    private IlrDataService ilrDataService;
+    private DataImportService dataImportService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private Environment environment;
 
     @GetMapping("/")
     String index(Principal principal, Model model) {
-        model.addAttribute("dataImportCount", ilrDataService.dataImportCount());
-        model.addAttribute("fundingLearnerRecordsCount", ilrDataService.fundingLearnerRecordsCount() / 12);
+        model.addAttribute("dataImportCount", dataImportService.dataImportCount());
         model.addAttribute("isTestEnvironment", environment.isTestEnvironment());
-        return "redirect:/occupancySummary";
+
+        User currentUser = userService.getCurrentUser();
+        if (currentUser.hasRole(TECH_ADMIN)) {
+            return "redirect:/systemDashboard";
+        } else {
+            return "redirect:/learners";
+        }
     }
 
     @GetMapping(value = "/login")
     public String loginPage() {
-        // TODO : redirect to home page if logged in
-//        return "redirect:/";
         return "login";
     }
 

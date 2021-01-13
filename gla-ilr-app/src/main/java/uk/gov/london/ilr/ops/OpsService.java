@@ -7,26 +7,8 @@
  */
 package uk.gov.london.ilr.ops;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.togglz.core.manager.FeatureManager;
-import uk.gov.london.common.JSONUtils;
-import uk.gov.london.common.error.ApiError;
-import uk.gov.london.common.skills.FundingRecord;
-import uk.gov.london.common.skills.SkillsGrantType;
-import uk.gov.london.ilr.data.DataImport;
-import uk.gov.london.ilr.data.FundingSummaryRecord;
-import uk.gov.london.ilr.data.FundingSummaryRecordRepository;
-import uk.gov.london.ilr.data.IlrDataService;
-import uk.gov.london.ilr.security.User;
-import uk.gov.london.ilr.security.UserService;
+import static uk.gov.london.ilr.file.FileUploadHandlerKt.getSkillsGrantType;
+import static uk.gov.london.ilr.feature.IlrFeature.OPS_CONNECTION;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -35,16 +17,33 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static uk.gov.london.ilr.data.IlrDataServiceKt.getSkillsGrantType;
-import static uk.gov.london.ilr.feature.IlrFeature.OPS_CONNECTION;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+import org.togglz.core.manager.FeatureManager;
+import uk.gov.london.common.JSONUtils;
+import uk.gov.london.common.error.ApiError;
+import uk.gov.london.common.skills.FundingRecord;
+import uk.gov.london.common.skills.SkillsGrantType;
+import uk.gov.london.ilr.file.DataImport;
+import uk.gov.london.ilr.file.DataImportService;
+import uk.gov.london.ilr.fundingsummary.FundingSummaryRecord;
+import uk.gov.london.ilr.fundingsummary.FundingSummaryRecordRepository;
+import uk.gov.london.ilr.security.SGWAuthenticationException;
+import uk.gov.london.ilr.security.User;
+import uk.gov.london.ilr.security.UserService;
 
 @Service
 public class OpsService {
 
     Logger log = LoggerFactory.getLogger(getClass());
 
-    public static String[] TEST_USERS = new String[]{"", "", ""};
+    public static String[] TEST_USERS = new String[]{};
 
     @Autowired
     private FeatureManager features;
@@ -59,7 +58,7 @@ public class OpsService {
     private UserService userService;
 
     @Autowired
-    private IlrDataService ilrDataService;
+    private DataImportService dataImportService;
 
     @Value("${ops.base.url}")
     String opsBaseUrl;
@@ -71,17 +70,14 @@ public class OpsService {
     String opsAuthenticationApiPath;
 
     public void pushFundingSummaryToOps(int recordId)  {
-        DataImport dataImportRecord = ilrDataService.getDataImportRecord(recordId);
+        DataImport dataImportRecord = dataImportService.getDataImportRecord(recordId);
         dataImportRecord.setLastExportDate(OffsetDateTime.now());
-        int academicYear = dataImportRecord.getAcademicYear();
-        int period = dataImportRecord.getPeriod();
+        Integer academicYear = dataImportRecord.getAcademicYear();
+        Integer period = dataImportRecord.getPeriod();
 
         List<FundingSummaryRecord> fundingLearnerRecords =
                 fundingSummaryRecordRepository.findAllByAcademicYearAndPeriod(academicYear, period);
-
-
         Set<FundingRecord> summaryList = fundingSummaryRecordsToCommonFormat(fundingLearnerRecords);
-
 
         if (!fundingLearnerRecords.isEmpty() && features.isActive(OPS_CONNECTION)) {
             try {
@@ -92,7 +88,7 @@ public class OpsService {
                         summaryList,
                         String.class);
 
-                ilrDataService.updateDataImportRecord(dataImportRecord);
+                dataImportService.updateDataImportRecord(dataImportRecord);
 
             } catch (HttpClientErrorException e) {
                 String errorMessageFromOps = JSONUtils.fromJSON(e.getResponseBodyAsString(), ApiError.class).getDescription();
@@ -110,8 +106,9 @@ public class OpsService {
         for (FundingSummaryRecord summary : fundingSummaryRecords) {
             SkillsGrantType recordGrantType = getSkillsGrantType(summary.getFundingLine());
 
-            FundingRecord record = new FundingRecord(summary.getUkprn(), summary.getAcademicYear(), summary.getPeriod(), summary.getActualYear(), summary.getActualMonth(), recordGrantType,
-                    summary.getFundingLine(), summary.getSource(), summary.getCategory(), summary.getMonthTotal(), summary.getTotalPayment());
+            FundingRecord record = new FundingRecord(summary.getUkprn(), summary.getAcademicYear(), summary.getPeriod(),
+                summary.getActualYear(), summary.getActualMonth(), recordGrantType, summary.getFundingLine(), summary.getSource(),
+                summary.getCategory(), summary.getMonthTotal(), summary.getTotalPayment());
             records.add(record);
         }
 
@@ -120,25 +117,25 @@ public class OpsService {
 
 
     public User authenticate(String username, String password) {
-        Map<String, Object> usernameAndPassword = new HashMap<>();
-        usernameAndPassword.put("username", username);
-        usernameAndPassword.put("password", password);
+        Map<String, Object> credentials = new HashMap<>();
+        credentials.put("username", username);
+        credentials.put("password", password);
 
-
-        if (Arrays.asList(TEST_USERS).contains(username) && !features.isActive(OPS_CONNECTION)) {
+        if (Arrays.asList(TEST_USERS).contains(username)) {
             return (User) userService.loadUserByUsername(username);
         }
 
         try {
-            ResponseEntity<User> response = opsRestTemplate.postForEntity(opsBaseUrl + opsAuthenticationApiPath, usernameAndPassword, User.class);
+            String authUrl = opsBaseUrl + opsAuthenticationApiPath;
+            ResponseEntity<User> response = opsRestTemplate.postForEntity(authUrl, credentials, User.class);
             if (response.getStatusCode().is2xxSuccessful()) {
                 return response.getBody();
+            } else {
+                throw new SGWAuthenticationException(response.getStatusCodeValue());
             }
-        } catch (Exception e) {
-            log.error("authentication exception", e);
+        } catch (HttpClientErrorException e) {
+            throw new SGWAuthenticationException(e.getRawStatusCode());
         }
-
-        throw new BadCredentialsException("");
     }
 
 }

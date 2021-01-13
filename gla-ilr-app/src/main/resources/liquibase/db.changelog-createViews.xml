@@ -49,17 +49,11 @@
             text(count(*)) AS value
             FROM funding_summary_record
 
-            UNION ALL
-
-            SELECT 'Number of funding learner records' AS key,
-            text(count(*)) AS value
-            FROM funding_learner_record
-
             ORDER BY key
         </createView>
     </changeSet>
 
-	<changeSet id="V_DASHBOARD_DATA_ENTITY_COUNTS_H2_CREATION"
+    <changeSet id="V_DASHBOARD_DATA_ENTITY_COUNTS_H2_CREATION"
                author="team" dbms="h2" failOnError="false" runAlways="true"
                runOnChange="true">
         <createView viewName="v_dashboard_key_data_entity_counts" replaceIfExists="true">
@@ -73,37 +67,30 @@
             TO_CHAR(count(*)) AS value
             FROM funding_summary_record
 
-            UNION ALL
-
-            SELECT 'Number of funding learner records' AS key,
-            TO_CHAR(count(*)) AS value
-            FROM funding_learner_record
-
             ORDER BY key
-        </createView>
-	</changeSet>
-
-    <changeSet id="v_learner_summary" author="team" dbms="h2" failOnError="false" runAlways="true" runOnChange="true">
-        <createView viewName="v_learner_summary" replaceIfExists="true">
-            select ROWNUM() as id, * from (
-                select l.id as learner_id, l.learner_reference_number, occ_rec.ukprn, occ_rec.academic_year, sd.last_supplementary_data_upload from learner l
-                left join occupancy_record occ_rec on l.id = occ_rec.learner_id
-                left join supplementary_data sd on occ_rec.learner_reference_number = sd.learner_reference_number and occ_rec.ukprn = sd.ukprn
-                group by l.id, occ_rec.ukprn, occ_rec.academic_year, sd.last_supplementary_data_upload
-                order by l.learner_reference_number, occ_rec.academic_year
-            )
         </createView>
     </changeSet>
 
-    <changeSet id="v_learner_summary" author="team" dbms="postgresql" failOnError="false" runAlways="true" runOnChange="true" >
-        <createView viewName="v_learner_summary" >
-            select row_number() over() AS id, * from (
-                select l.id as learner_id, l.learner_reference_number, occ_rec.ukprn, occ_rec.academic_year, sd.last_supplementary_data_upload from learner l
-                left join occupancy_record occ_rec on l.id = occ_rec.learner_id
-                left join supplementary_data sd on occ_rec.learner_reference_number = sd.learner_reference_number and occ_rec.ukprn = sd.ukprn
-                group by l.id, occ_rec.ukprn, occ_rec.academic_year, sd.last_supplementary_data_upload
-                order by l.learner_reference_number, occ_rec.academic_year
-            ) as sub
+    <changeSet id="v_learner_summary" author="team" failOnError="false" runAlways="true" runOnChange="true">
+        <createView viewName="v_learner_summary" replaceIfExists="true">
+            select L.unique_Learner_Number as learner_id, l.learner_reference_number, l.ukprn, l.year as year, sd.last_supplementary_data_upload
+            , sd.investment_priority_claimed_under ||' - '||rdmi.detailed_value investment_priority_claimed_under
+            , sd.has_basic_skills ||' - '|| rdmb.detailed_value has_basic_skills
+            , sd.is_homeless ||' - '|| rdmh.detailed_value as homeless
+            , sd.highest_educational_attainment_at_esf_start ||' - '|| rdm_heaes.detailed_value as highest_educational_attainment_at_esf_start
+            , sd.progressing_into_education_or_training_as_esf_result ||' - '|| rdm_pieter.detailed_value as progressing_into_education_or_training_as_esf_result
+            , sd.start_date_for_education_or_training_esf_result
+            , sd.has_left_esf_program ||' - '|| rdm_hlep.detailed_value as has_left_esf_program
+            , sd.esf_leave_date
+            from learner l
+            left join supplementary_data sd on l.learner_reference_number = sd.learner_reference_number and l.ukprn = sd.ukprn
+            left join ref_data_mapping rdmi on rdmi.attribute ='Investment priority claimed under' and rdmi.code = sd.investment_priority_claimed_under and rdmi.year = l.year
+            left join ref_data_mapping rdmb on rdmb.attribute ='Has Basic Skills upon joining' and rdmb.code = sd.has_basic_skills::text and rdmb.year = l.year
+            left join ref_data_mapping rdmh on rdmh.attribute ='Is homeless (broad definition)' and rdmh.code = sd.is_homeless::text and rdmh.year = l.year
+            left join ref_data_mapping rdm_heaes on rdm_heaes.attribute ='Highest educational attainment at ESF start' and rdm_heaes.code = sd.highest_educational_attainment_at_esf_start::text and rdm_heaes.year = l.year
+            left join ref_data_mapping rdm_pieter on rdm_pieter.attribute ='Progressing into education or training as ESF result' and rdm_pieter.code = sd.progressing_into_education_or_training_as_esf_result::text and  rdm_pieter.year = l.year
+            left join ref_data_mapping rdm_hlep on rdm_hlep.attribute ='Has left ESF program' and rdm_hlep.code = sd.has_left_esf_program::text and rdm_hlep.year = l.year
+            order by l.learner_reference_number, l.ukprn, l.year
         </createView>
     </changeSet>
 
