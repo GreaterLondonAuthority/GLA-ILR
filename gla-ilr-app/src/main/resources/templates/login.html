@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
       xml:lang="en" lang="en">
 <body class="ng-scope">
@@ -19,7 +18,9 @@
             <div class="row login ng-scope">
                 <div class="col-xs-12 form-top-error">
                     <p class="error" th:if="${#strings.equals(param.error, '403')}">Sorry, you are not authorised to access this service</p>
-                    <p class="error" th:if="${param.error != null && !#strings.equals(param.error, '403')}">Sorry, your email and password combination is not recognised</p>
+                    <p class="error" th:if="${param.error != null && #strings.equals(param.reason, 'PASSWORD_EXPIRED') && !#strings.equals(param.error, '403')}">Sorry, your password has expired. A link to reset your password has been sent to <span th:text="${param.username}"></span>.</p>
+                    <p class="error" th:if="${param.error != null && #strings.equals(param.reason, 'PASSWORD_INCORRECT') && !#strings.equals(param.error, '403')}">Sorry, your email and password combination is not recognised</p>
+                    <p class="error" th:if="${param.error != null && #strings.equals(param.reason, '') && !#strings.equals(param.error, '403')}">Sorry, your email and password combination is not recognised</p>
                     <p class="error" th:if="${param.logout}">You have been logged out.</p>
                 </div>
                 <div class="col-xs-1"></div>
@@ -30,7 +31,7 @@
                     <div class="col-xs-12 col-ms-8 col-sm-6 col-md-4 center-col">
                         <div class="form-group">
                             <label for="login-email">Email address</label>
-                            <input id="login-email" type="email" name="username" class="form-control" placeholder="Organisation email" required autofocus/>
+                            <input id="login-email" type="email" name="username" class="form-control" placeholder="Organisation email" required/>
                         </div>
                     </div>
 

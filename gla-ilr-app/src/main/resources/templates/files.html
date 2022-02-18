@@ -40,7 +40,7 @@
             </div>
         </div>
         <div class="table-responsive">
-            <table class="table table-hover table-bordered table-striped" id="uploaded-files">
+            <table class="table table-hover table-bordered table-striped" id="uploaded-files" th:if="${!dataImports.isEmpty()}">
                 <thead class="thead-inverse uppercase">
                 <tr>
                     <th>FILE TYPE</th>
@@ -61,9 +61,9 @@
                     <td th:text="${#strings.capitalize(#strings.toLowerCase(dataImport.status)) + ( #strings.toLowerCase(dataImport.status) == 'processing' &&  dataImport.rowsProcessed > 0 ? ' (' + dataImport.rowsProcessed + ')' : '' )}"></td>
                     <td th:text="${#temporals.format(dataImport.lastExportDate, 'dd/MM/yyyy HH:mm')}"></td>
                     <td class="delete-btn-container">
-                        <form id="ops-push-form" method="POST" action="/pushFundingSummaryToOps" th:if="${dataImport.canPushToOPS}">
+                        <form class="ops-push-form" method="POST" action="/pushFundingSummaryToOps" th:if="${dataImport.canPushToOPS}">
                             <input th:type="hidden" th:name="id" th:value="${dataImport.id}"/>
-                            <button id="ops-push-btn" class="btn btn-secondary" type="submit"> PUSH TO OPS</button>
+                            <button class="btn btn-secondary ops-push-btn" type="submit"> PUSH TO OPS</button>
                         </form>
 
                         <div th:if="${dataImport.importType.deletable}">

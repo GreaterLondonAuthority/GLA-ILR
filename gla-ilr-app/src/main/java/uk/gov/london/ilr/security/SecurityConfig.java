@@ -52,10 +52,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .authorizeRequests()
                 .antMatchers(
-                        "/bower_components/**",
                         "/images/**",
                         "/scripts/**",
                         "/styles/**",
+                        "/robots.txt",
                         "/login",
                         "/healthcheck",
                         "/api/v1/features/**",
@@ -71,6 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login");
+        http.httpBasic();
     }
 
     /**

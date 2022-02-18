@@ -40,10 +40,6 @@
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
 		</dependency>
@@ -146,7 +142,7 @@
 		<dependency>
 			<groupId>uk.gov.london</groupId>
 			<artifactId>gla-common</artifactId>
-			<version>0.0.19-SNAPSHOT</version>
+			<version>0.0.22-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -192,12 +188,12 @@
 		<dependency>
 			<groupId>com.querydsl</groupId>
 			<artifactId>querydsl-apt</artifactId>
-			<version>4.2.1</version>
+			<version>4.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.querydsl</groupId>
 			<artifactId>querydsl-jpa</artifactId>
-			<version>4.2.1</version>
+			<version>4.3.1</version>
 		</dependency>
 
 		<dependency>
@@ -247,6 +243,26 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
+			<plugin>
+				<groupId>br.com.ingenieux</groupId>
+				<artifactId>beanstalk-maven-plugin</artifactId>
+				<version>1.5.0</version>
+				<configuration>
+					<applicationName>gla-${eb.env}-landmgmt-app</applicationName>
+					<s3Bucket>${s3.bucket}</s3Bucket>
+					<s3Key>${project.build.finalName}-${maven.build.timestamp}.war</s3Key>
+					<versionLabel>gla-ilr-${build.release}.${build.number}</versionLabel>
+					<environmentName>gla${eb.env}skills</environmentName>
+					<environmentRef>gla${eb.env}skills</environmentRef>
+					<regionName>${eb.region}</regionName>
+					<artifactFile>../gla-ilr.war</artifactFile>
+					<serverId>londonglaops.${eb.env}.eb.aws.amazon.com</serverId>
+					<silentUpload>false</silentUpload>
+					<verbose>true</verbose>
+					<multipartUpload>false</multipartUpload>
+				</configuration>
+			</plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -279,16 +295,21 @@
 					<destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
 					<dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
 					<excludes>
-						<exclude>**/GlaIlrWebApp.*</exclude>
-						<exclude>**/H2ServerConfiguration.*</exclude>
-						<exclude>**/IlrTogglzConfiguration.*</exclude>
-						<exclude>**/LiquibaseConfig.*</exclude>
-						<exclude>**/LogglyCustomJsonLayout.*</exclude>
-						<exclude>**/SwaggerConfig.*</exclude>
-						<exclude>**/QFundingSummaryRecord.*</exclude>
-						<exclude>**/QLearnerPK.*</exclude>
-						<exclude>**/QLearnerSummary.*</exclude>
-					</excludes>
+            <exclude>**/GlaIlrWebApp.*</exclude>
+            <exclude>**/H2ServerConfiguration.*</exclude>
+            <exclude>**/IlrTogglzConfiguration.*</exclude>
+            <exclude>**/LiquibaseConfig.*</exclude>
+            <exclude>**/LogglyCustomJsonLayout.*</exclude>
+            <exclude>**/SwaggerConfig.*</exclude>
+            <exclude>**/QFundingSummaryRecord.*</exclude>
+            <exclude>**/QLearnerPK.*</exclude>
+            <exclude>**/QLearnerSummary.*</exclude>
+            <exclude>**/QSupplementaryDataSummary.*</exclude>
+            <exclude>**/QRefDataMappingPK.*</exclude>
+            <exclude>**/QRefDataMapping.*</exclude>
+            <exclude>**/QProviderAllocationPK.*</exclude>
+            <exclude>**/QProviderAllocation.*</exclude>
+          </excludes>
 				</configuration>
 				<executions>
 					<execution>
@@ -316,7 +337,7 @@
 										<limit implementation="org.jacoco.report.check.Limit">
 											<counter>CLASS</counter>
 											<value>MISSEDCOUNT</value>
-											<maximum>0</maximum>
+											<maximum>2</maximum>
 										</limit>
 									</limits>
 								</rule>

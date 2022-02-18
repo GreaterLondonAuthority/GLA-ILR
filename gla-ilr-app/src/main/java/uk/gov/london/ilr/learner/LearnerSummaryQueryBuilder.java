@@ -45,16 +45,4 @@ class LearnerSummaryQueryBuilder {
         }
         return this;
     }
-
-    LearnerSummaryQueryBuilder withFilterBySupplementaryData(Boolean filterBySupplementaryData) {
-        if (filterBySupplementaryData != null) {
-            if (filterBySupplementaryData) {
-                predicateBuilder.and(QLearnerSummary.learnerSummary.lastSupplementaryDataUpload.isNotNull());
-            } else {
-                predicateBuilder.and(QLearnerSummary.learnerSummary.lastSupplementaryDataUpload.isNull());
-            }
-        }
-        return this;
-    }
-
 }

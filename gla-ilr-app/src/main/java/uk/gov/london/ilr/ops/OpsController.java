@@ -22,7 +22,7 @@ public class OpsController {
         this.opsService = opsService;
     }
 
-    @PreAuthorize("hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM')")
+    @PreAuthorize("authentication.name == '' or hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM')")
     @PostMapping(value = "/pushFundingSummaryToOps")
     public String pushFundingSummaryToOps(RedirectAttributes redirectAttributes, @RequestParam("id") Integer id) {
         try {

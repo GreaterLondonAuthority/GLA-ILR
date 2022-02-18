@@ -1,0 +1,13 @@
+/target
+*.log
+
+# Intellij
+.idea/
+*.iml
+*.iws
+
+**/.DS_Store
+
+chromedriver
+
+.env

@@ -8,11 +8,14 @@
 package uk.gov.london.ilr.web
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ModelAttribute
+import org.togglz.core.manager.FeatureManager
 import uk.gov.london.ilr.admin.AdminService
 import uk.gov.london.ilr.environment.Environment
+import uk.gov.london.ilr.feature.IlrFeature
 import uk.gov.london.ilr.security.UserService
 
 /**
@@ -23,7 +26,14 @@ import uk.gov.london.ilr.security.UserService
 @ControllerAdvice
 class HeaderFooterControllerAdvice(@Autowired val environment: Environment,
                                    @Autowired val userService: UserService,
+                                   @Autowired val featureManager: FeatureManager,
                                    @Autowired val adminService: AdminService) {
+
+    @Value("\${accessibility.url}")
+    var accessibilityUrl: String = ""
+
+    @Value("\${privacy.policy.url}")
+    var privacyPolicyUrl: String = ""
 
     @ModelAttribute
     fun addTitle(model: Model) {
@@ -40,8 +50,11 @@ class HeaderFooterControllerAdvice(@Autowired val environment: Environment,
 
     @ModelAttribute
     fun footerDetails(model: Model) {
+        model.addAttribute("showAccessibilityURL", featureManager.isActive(IlrFeature.ACCESSIBILITY_URL))
+        model.addAttribute("accessibilityURL", accessibilityUrl)
         model.addAttribute("envShortName", environment.shortName())
         model.addAttribute("appVersionAndBuildNumberElement", environment.appVersionAndBuildNumberElement)
+        model.addAttribute("privacyPolicyUrl", privacyPolicyUrl)
     }
 
 }

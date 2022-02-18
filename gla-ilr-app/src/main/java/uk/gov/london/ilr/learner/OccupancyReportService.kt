@@ -31,7 +31,9 @@ class OccupancyReportService(val dataImportService: DataImportService,
     internal var log = LoggerFactory.getLogger(javaClass)
 
     @Value("\${ilr.occupancy-report.format-change-year}")
-    var reportFormatChangeYear: Int = 2020
+    var reportFirstFormatChangeYear: Int = 2020
+
+    var reportSecondFormatChangeYear: Int = 2021
 
     val months : Array<String> = DateFormatSymbols(Locale.ENGLISH).months
 
@@ -76,17 +78,20 @@ class OccupancyReportService(val dataImportService: DataImportService,
     }
 
     private fun validateOccupancyFields(academicYear: Int, csvFile: CSVFile) {
-        log.debug("academicYear:"+academicYear +"reportFormatChangeYear:"+reportFormatChangeYear)
         val expectedColumns = mutableSetOf(LRN, UKPRN, "Return", "Unique learner number", "Aim sequence number",
                 "Date of birth", "LLDD and health problem", "Ethnicity", "Sex", "Postcode prior to enrolment", "Prior attainment", "Provider specified learner monitoring (A)", "Provider specified learner monitoring (B)", // Learner
                 "Learning aim reference", "Outcome", "Notional NVQ level", "Tier 2 sector subject area", "Funding model", "Completion status", "ESM Type - benefit status indicator", "Learner employment status", // Learner Delivery
-                "Funding line type", "Partner UKPRN", "LDFAM type - full or co funding indicator", "LDFAM type - LDM (A)", "LDFAM type - LDM (B)", "LDFAM type - LDM (C)", "LDFAM type - LDM (D)", // Learenr Delivery
+                "Funding line type", "ESFA Funding line type", "Partner UKPRN", "LDFAM type - full or co funding indicator", "LDFAM type - LDM (A)", "LDFAM type - LDM (B)", "LDFAM type - LDM (C)", "LDFAM type - LDM (D)", // Learenr Delivery
                 "LDFAM type - LDM (E)", "LDFAM type - LDM (F)", "LDFAM type - DAM (A)", "LDFAM type - DAM (B)", "LDFAM type - DAM (C)", "LDFAM type - DAM (D)", "LDFAM type - Community Learning provision type",// Learenr Delivery
                 "Learning start date", "Learning planned end date", "Learning actual end date") // Learenr Delivery
 
-        if ( academicYear >= reportFormatChangeYear ) {
+        if ( academicYear >= reportFirstFormatChangeYear ) {
             expectedColumns.addAll(mutableSetOf("Provider name","Family name", "Given names", "Tier 2 sector subject area name", "Local authority code", "LDFAM type - DAM (E)", "LDFAM type - DAM (F)",
-            "LDFAM type - household situation (A)", "LDFAM type - household situation (B)", "ESM type - employment intensity indicator", "Start for funding purposes", "Partner UKPRN name"))
+                    "LDFAM type - household situation (A)", "LDFAM type - household situation (B)", "ESM type - employment intensity indicator", "Start for funding purposes", "Partner UKPRN name"))
+        }
+
+        if ( academicYear >= reportSecondFormatChangeYear ) {
+            expectedColumns.addAll(mutableSetOf("Policy uplift rate","Age at start", "Basic skills type", "Policy uplift category", "ESM type - Length of unemployment"))
         }
 
         for (i in 0..11) { // earning
@@ -150,7 +155,7 @@ class OccupancyReportService(val dataImportService: DataImportService,
     private fun createProvider(csvRow: CSVFile,  academicYear: Int, ukprn: Int) {
         val id = ProviderPK(academicYear,ukprn)
         if (!providerRepository.existsById(id)) {
-            val providerName = csvRow.getStringIfPresent("Provider name")
+            val providerName = getString(csvRow,"Provider name")
             providerRepository.save(Provider(id, providerName)
             )
         }
@@ -159,7 +164,7 @@ class OccupancyReportService(val dataImportService: DataImportService,
     private fun createLearningAim(csvRow: CSVFile,aimReference: String,  academicYear: Int) {
         val id = LearningAimPK(aimReference, academicYear)
         if (!learningAimRepository.existsById(id)) {
-            val title = csvRow.getString("Learning aim title")
+            val title = getString(csvRow, "Learning aim title").orEmpty()
             learningAimRepository.save(LearningAim(id, title)
             )
         }
@@ -169,15 +174,15 @@ class OccupancyReportService(val dataImportService: DataImportService,
         val id = LearnerPK(learnerReferenceNumber, ukprn, academicYear)
         if (!learnerRepository.existsById(id)) {
             val dateOfBirth: LocalDate? = getDateFromField(csvRow, "Date of birth")
-            val lldd = csvRow.getInteger("LLDD and health problem")
-            val ethnicity = csvRow.getInteger("Ethnicity")
-            val priorAttainment = csvRow.getIntegerOrNull("Prior attainment")
-            val gender = csvRow.getString("Sex")
-            val postcode = csvRow.getString("Postcode prior to enrolment")
-            val monA = csvRow.getString("Provider specified learner monitoring (A)")
-            val monB = csvRow.getString("Provider specified learner monitoring (B)")
-            val familyName = csvRow.getStringIfPresent("Family name")
-            val givenName = csvRow.getStringIfPresent("Given names")
+            val lldd = getInteger(csvRow,"LLDD and health problem")
+            val ethnicity = getInteger(csvRow,"Ethnicity")
+            val priorAttainment = getInteger(csvRow,"Prior attainment")
+            val gender = getString(csvRow,"Sex")
+            val postcode = getString(csvRow,"Postcode prior to enrolment")
+            val monA = getString(csvRow,"Provider specified learner monitoring (A)")
+            val monB = getString(csvRow,"Provider specified learner monitoring (B)")
+            val familyName = getString(csvRow,"Family name")
+            val givenName = getString(csvRow,"Given names")
             learnerRepository.save(
                     Learner(id,
                             uln,
@@ -198,37 +203,43 @@ class OccupancyReportService(val dataImportService: DataImportService,
     }
 
     private fun createLearnerDelivery(csvRow: CSVFile, ukprn: Int, learnerReferenceNumber: String,  aimSequenceNumber: Int, academicYear: Int, returnPeriod: Int) {
-        val aimReference = csvRow.getString("Learning aim reference")
-        val outcome = csvRow.getIntegerOrNull("Outcome")
-        val nvq = csvRow.getString("Notional NVQ level")
-        val tier2 = csvRow.getString("Tier 2 sector subject area")
-        val funding = csvRow.getIntegerOrNull("Funding model")
-        val completion = csvRow.getIntegerOrNull("Completion status")
-        val esm = csvRow.getIntegerOrNull("ESM Type - benefit status indicator")
-        val empStatus = csvRow.getIntegerOrNull("Learner employment status")
-        val fundingLineType = csvRow.getString("Funding line type")
-        val partnerUkprn = csvRow.getIntegerOrNull("Partner UKPRN")
-        val ldfamTypeFundingIndicator = csvRow.getIntegerOrNull("LDFAM type - full or co funding indicator")
-        val ldfamTypeLdmA = csvRow.getIntegerOrNull("LDFAM type - LDM (A)")
-        val ldfamTypeLdmB = csvRow.getIntegerOrNull("LDFAM type - LDM (B)")
-        val ldfamTypeLdmC = csvRow.getIntegerOrNull("LDFAM type - LDM (C)")
-        val ldfamTypeLdmD = csvRow.getIntegerOrNull("LDFAM type - LDM (D)")
-        val ldfamTypeLdmE = csvRow.getIntegerOrNull("LDFAM type - LDM (E)")
-        val ldfamTypeLdmF = csvRow.getIntegerOrNull("LDFAM type - LDM (F)")
-        val ldfamTypeDamA = csvRow.getIntegerOrNull("LDFAM type - DAM (A)")
-        val ldfamTypeDamB = csvRow.getIntegerOrNull("LDFAM type - DAM (B)")
-        val ldfamTypeDamC = csvRow.getIntegerOrNull("LDFAM type - DAM (C)")
-        val ldfamTypeDamD = csvRow.getIntegerOrNull("LDFAM type - DAM (D)")
-        val ldfamTypeDamE = csvRow.getStringIfPresent("LDFAM type - DAM (E)")
-        val ldfamTypeDamF = csvRow.getStringIfPresent("LDFAM type - DAM (F)")
-        val ldfamCommunityLearningProvisionType = csvRow.getIntegerOrNull("LDFAM type - Community Learning provision type")
-        val ldfamTypeHouseholdSituationA = csvRow.getStringIfPresent("LDFAM type - household situation (A)")
-        val ldfamTypeHouseholdSituationB = csvRow.getStringIfPresent("LDFAM type - household situation (B)")
-        val localAuthorityCode = csvRow.getStringIfPresent("Local authority code")
-        val partnerUkprnName = csvRow.getStringIfPresent("Partner UKPRN name")
-        val esmTypeEmploymentIntensity = csvRow.getIntegerIfPresent("ESM type - employment intensity indicator")
-        val startForFundingPurposes = csvRow.getIntegerIfPresent("Start for funding purposes")
-        val tierTwoSectorSubjectAreaName = csvRow.getStringIfPresent("Tier 2 sector subject area name")
+        val aimReference = getString(csvRow,"Learning aim reference")
+        val outcome = getInteger(csvRow,"Outcome")
+        val nvq = getString(csvRow,"Notional NVQ level")
+        val tier2 = getString(csvRow,"Tier 2 sector subject area")
+        val funding = getInteger(csvRow,"Funding model")
+        val completion = getInteger(csvRow,"Completion status")
+        val esm = getInteger(csvRow,"ESM Type - benefit status indicator")
+        val empStatus = getInteger(csvRow,"Learner employment status")
+        val fundingLineType = getString(csvRow,"Funding line type")
+        val esfaFundingLineType = getString(csvRow,"ESFA Funding line type")
+        val partnerUkprn = getInteger(csvRow,"Partner UKPRN")
+        val ldfamTypeFundingIndicator = getInteger(csvRow,"LDFAM type - full or co funding indicator")
+        val ldfamTypeLdmA = getInteger(csvRow,"LDFAM type - LDM (A)")
+        val ldfamTypeLdmB = getInteger(csvRow,"LDFAM type - LDM (B)")
+        val ldfamTypeLdmC = getInteger(csvRow,"LDFAM type - LDM (C)")
+        val ldfamTypeLdmD = getInteger(csvRow,"LDFAM type - LDM (D)")
+        val ldfamTypeLdmE = getInteger(csvRow,"LDFAM type - LDM (E)")
+        val ldfamTypeLdmF = getInteger(csvRow,"LDFAM type - LDM (F)")
+        val ldfamTypeDamA = getInteger(csvRow,"LDFAM type - DAM (A)")
+        val ldfamTypeDamB = getInteger(csvRow,"LDFAM type - DAM (B)")
+        val ldfamTypeDamC = getInteger(csvRow,"LDFAM type - DAM (C)")
+        val ldfamTypeDamD = getInteger(csvRow,"LDFAM type - DAM (D)")
+        val ldfamTypeDamE = getString(csvRow,"LDFAM type - DAM (E)")
+        val ldfamTypeDamF = getString(csvRow,"LDFAM type - DAM (F)")
+        val ldfamCommunityLearningProvisionType = getInteger(csvRow,"LDFAM type - Community Learning provision type")
+        val ldfamTypeHouseholdSituationA = getString(csvRow,"LDFAM type - household situation (A)")
+        val ldfamTypeHouseholdSituationB = getString(csvRow,"LDFAM type - household situation (B)")
+        val localAuthorityCode = getString(csvRow,"Local authority code")
+        val partnerUkprnName = getString(csvRow,"Partner UKPRN name")
+        val esmTypeEmploymentIntensity = getInteger(csvRow,"ESM type - employment intensity indicator")
+        val startForFundingPurposes = getInteger(csvRow,"Start for funding purposes")
+        val tierTwoSectorSubjectAreaName = getString(csvRow,"Tier 2 sector subject area name")
+        val policyUpliftRate = getInteger(csvRow,"Policy uplift rate")
+        val ageAtStart = getInteger(csvRow,"Age at start")
+        val basicSkillsType = getString(csvRow,"Basic skills type")
+        val policyUpliftCategory = getString(csvRow,"Policy uplift category")
+        val esmTypeLengthOfUnemployment = getInteger(csvRow,"ESM type - Length of unemployment")
 
         learnerDeliveryRepository.save(
                 LearningDelivery(LearningDeliveryPK(ukprn, learnerReferenceNumber, aimSequenceNumber, academicYear),
@@ -245,6 +256,7 @@ class OccupancyReportService(val dataImportService: DataImportService,
                         esm,
                         returnPeriod,
                         fundingLineType,
+                        esfaFundingLineType,
                         partnerUkprn,
                         ldfamTypeFundingIndicator,
                         ldfamTypeLdmA,
@@ -266,10 +278,16 @@ class OccupancyReportService(val dataImportService: DataImportService,
                         partnerUkprnName,
                         esmTypeEmploymentIntensity,
                         startForFundingPurposes,
-                        tierTwoSectorSubjectAreaName
+                        tierTwoSectorSubjectAreaName,
+                        policyUpliftRate,
+                        ageAtStart,
+                        basicSkillsType,
+                        policyUpliftCategory,
+                        esmTypeLengthOfUnemployment
                 )
         )
     }
+
 
     private fun createEarningPeriods(csvRow: CSVFile, ukprn: Int, learnerReferenceNumber: String, aimSequenceNumber: Int, academicYear: Int, returnPeriod: Int) {
         for (i in 0..11) {
@@ -301,18 +319,41 @@ class OccupancyReportService(val dataImportService: DataImportService,
             val expectedColumns = ArrayList<String>()
 
             for (column in expectedColumnHeader) {
-                if (!csvColumnHeader.contains(column) ) {
+                if (!csvColumnHeader.stream().anyMatch { o -> stripStr(o).equals(stripStr(column)) }) {
                     expectedColumns.add(column)
                 }
             }
+            if (expectedColumns.size > 0) {
+                var errorMessage = "column $expectedColumns not found in the file."
+                if (listAcceptableColumn) {
+                    errorMessage += " Acceptable column headings are $expectedColumnHeader"
+                }
 
-            var errorMessage = "column $expectedColumns not found in the file."
-            if (listAcceptableColumn) {
-                errorMessage += " Acceptable column headings are $expectedColumnHeader"
+                throw RuntimeException(errorMessage)
             }
-
-            throw RuntimeException(errorMessage)
         }
+    }
+
+    private fun stripStr(str : String ):String{
+        return str.replace(Regex("\\s+"),"").toLowerCase();
+    }
+
+    private fun getString(csvRow: CSVFile, heading : String) : String? {
+        return csvRow.getStringIfPresent(getHeaderKey(csvRow, heading))
+    }
+
+    private fun getInteger(csvRow: CSVFile, heading : String) : Int? {
+        return csvRow.getIntegerIfPresent(getHeaderKey(csvRow, heading))
+    }
+
+    private fun getHeaderKey(csvRow: CSVFile, heading : String) :String? {
+        return if (csvRow.headers.contains(heading)) heading
+        else csvRow.headers.find {h -> return if (stripStr(h).equals(stripStr(heading))) h else heading }
+    }
+
+
+    fun validateOccupancyRecordExists(ukprn: Int, learnerReferenceNumber: String, year: Int?) : Boolean {
+        return learnerRepository.recordExists(ukprn, learnerReferenceNumber, year)
     }
 
 }

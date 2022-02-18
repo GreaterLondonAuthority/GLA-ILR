@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xml:lang="en" lang="en">
 <body>
 
-<div th:fragment="pagination">
+<gla-pagination th:fragment="pagination">
 
     <div class="pull-right" aria-label="Page navigation" th:if="${page.totalElements > page.pageSize}">
         <ul class="pagination pagination-sm" th:with="currentUrl=(${@currentUrlWithoutParam.apply('page')})">
@@ -34,7 +34,7 @@
         of <span th:text="${page.totalElements}"></span>
     </div>
 
-</div>
+</gla-pagination>
 
 </body>
 </html>

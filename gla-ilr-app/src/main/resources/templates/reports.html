@@ -36,8 +36,8 @@
             <h2>Reports</h2>
         </div>
 
-        <well id="export-section" class="multipanel-container">
-            <div class="section-header">Export</div>
+        <gla-well id="export-section" class="multipanel-container">
+            <h3 class="section-header mtop10">Export</h3>
 
             <div class="mtop40 mright15 mleft15">
                 <form action="#" th:action="@{/download}" method="post">
@@ -57,9 +57,9 @@
 
                         <div class="col-md-4 search-column">
                             <div class="text-align-left input-group">
-                                <label>ILR Return Period</label>
+                              <label for="file-suffix">ILR Return Period</label>
                                 <div id="read-only-file-suffix" class="mtop5" th:if="${fileSuffixes.size() == 1}" th:text="${fileSuffixes[0]}"></div>
-                                <select id="file-suffix" name="fileSuffix" th:hidden="${fileSuffixes.size() == 1}">
+                                <select id="file-suffix" class="form-control" name="fileSuffix" th:hidden="${fileSuffixes.size() == 1}">
                                     <option disabled selected value th:if="${fileSuffixes.size() > 1}"></option>
                                     <option th:each="fileSuffix : ${fileSuffixes}" th:value="${fileSuffix}">
                                         <span th:text="${fileSuffix}"></span>
@@ -70,14 +70,16 @@
 
                         <div class="col-md-4 search-column">
                             <div class="text-align-left input-group">
-                                <label>UKPRN</label>
+                              <label for="ukprn">UKPRN</label>
                                 <div id="read-only-ukprn" class="mtop5" th:if="${ukprns.size() == 1}" th:text="${ukprns[0]}"></div>
-                                <select id="ukprn" name="ukprn" th:hidden="${ukprns.size() == 1}">
-                                    <option disabled selected value th:if="${ukprns.size() > 1}"></option>
-                                    <option th:each="ukprn : ${ukprns}" th:value="${ukprn}">
-                                        <span th:text="${ukprn}"></span>
-                                    </option>
-                                </select>
+                                <div th:hidden="${ukprns.size() == 1}">
+                                    <select id="ukprn" class="form-control" name="ukprn" >
+                                        <option disabled selected value th:if="${ukprns.size() > 1}"></option>
+                                        <option th:each="ukprn : ${ukprns}" th:value="${ukprn}">
+                                            <span th:text="${ukprn}"></span>
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -89,10 +91,10 @@
                     </div>
                 </form>
             </div>
-        </well>
+        </gla-well>
 
-        <well id="adhoc-reporting-section" class="multipanel-container mtop40" th:if="${user.isGla()}">
-            <div class="section-header">Ad-hoc reporting</div>
+        <gla-well id="adhoc-reporting-section" class="multipanel-container mtop40" th:if="${user.isGla()}">
+          <h3 class="section-header mtop10">Ad-hoc reporting</h3>
 
             <div class="mtop40 mright15 mleft15">
                 <form action="#" th:action="@{/adhocReport}" method="post">
@@ -105,7 +107,7 @@
                     <div class="row mtop30 text-center">
                         <label for="report-sql-query" class="pull-left">SQL:</label>
                         <div id="report-sql-query">
-                            <textarea id="sql" name="sql" style="width: 100%; text-align: left" rows="5" maxlength="100000"></textarea>
+                            <textarea id="sql" class="form-control" name="sql" style="width: 100%; text-align: left" rows="5" maxlength="100000"></textarea>
                         </div>
                     </div>
 
@@ -114,7 +116,7 @@
                     </div>
                 </form>
             </div>
-        </well>
+        </gla-well>
 
     </section>
 

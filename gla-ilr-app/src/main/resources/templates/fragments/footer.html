@@ -3,9 +3,11 @@
 <body>
 
 <gla-footer class="ng-isolate-scope" th:fragment="footer">
-    <footer class="glaFooter">
-
-        <div class="glaFooter__aboutLink"></div>
+    <footer class="glaFooter footer">
+        <div class="glaFooter__aboutLink">
+            <a target="_blank" class="no-print" th:href="${privacyPolicyUrl}">Privacy Policy</a>
+            <span data-th-if="${showAccessibilityURL}">| <a target="_blank" th:href="${accessibilityURL}" class="no-print">Accessibility Statement</a></span>
+        </div>
 
         <div class="copyright"> Copyright © Greater London Authority 2018 </div>
 

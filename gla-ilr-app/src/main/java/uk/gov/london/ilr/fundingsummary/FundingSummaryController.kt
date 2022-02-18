@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest
 class FundingSummaryController(private val fundingSummaryService: FundingSummaryService,
                                private val userService: UserService) {
 
-    @PreAuthorize("hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE', 'GLA_READ_ONLY')" )
+    @PreAuthorize("authentication.name == '' or hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE', 'GLA_READ_ONLY')" )
     @GetMapping("/fundingSummary")
     fun fundingSummary(@RequestParam(required = false) ukprn: Int?,
                        @RequestParam(required = false) academicYear: Int?,
@@ -32,6 +32,7 @@ class FundingSummaryController(private val fundingSummaryService: FundingSummary
                        @PageableDefault(size = 50) pageable: Pageable,
                        model: Model,
                        request: HttpServletRequest): String {
+        model["pageTitle"] = "Funding Summary"
         // Check if user has access to see learners data with this specific ukprn
         val currentUser = userService.currentUser
         if(!currentUser.isGla && ukprn != null) {

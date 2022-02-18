@@ -8,4 +8,6 @@ interface DataImportRepository: JpaRepository<DataImport, Int> {
 
     @Query("select * from data_import where created_by = ?1 and import_type = ?2 order by created_on desc LIMIT 1", nativeQuery = true)
     fun findLatestUploadByUserAndType(user: String, type: String): DataImport?
+
+    fun findByImportTypeAndAcademicYearAndPeriod(type: DataImportType, academicYear: Int, period: Int): DataImport?
 }

@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xml:lang="en" lang="en">
+<body>
+<span th:fragment="toggleIcon"
+      class="glyphicon glyphicon-chevron-right allow-enter dark-focus toggle-icon"
+      tabindex="0"
+      role="button"
+      aria-expanded="false"
+      data-toggle="collapse"
+      th:data-target="|#${target}|"
+      th:aria-controls="${target}"
+      th:aria-label="${ariaLabelId == null? 'Expand' : 'Expand ' + ariaLabelId}"
+      th:id="|icon-${target}|">
+
+    <script th:if="${#ids.seq('toggleIcon.script.') == 'toggleIcon.script.1'}">
+        $(document).ready(function () {
+          $(function () {
+            $.support.transition = false;
+          })
+
+          $(".toggle-icon").click(function (e) {
+            e.stopPropagation();
+            let targetEl = $($(this).data('target'));
+            let isExpanded = targetEl.hasClass('in');
+            targetEl.collapse(isExpanded ? 'hide' : 'show');
+          });
+
+          $('.collapse').on('show.bs.collapse hide.bs.collapse', function (e) {
+            let toggleIcon = $(document).find("[data-target='#" + $(e.target).attr('id') + "']");
+            toggleIcon.toggleClass("glyphicon-chevron-right");
+            toggleIcon.toggleClass("glyphicon-chevron-down");
+            toggleIcon.attr('aria-label', function (i, attr) {
+              if (attr.startsWith('Expand')) {
+                return attr.replace('Expand', 'Collapse');
+              } else {
+                return attr.replace('Collapse', 'Expand');
+              }
+            });
+          });
+        })
+    </script>
+</span>
+</body>
+</html>

@@ -10,9 +10,8 @@
             <h2>Audit History</h2>
         </div>
 
+        <div th:replace="fragments/pagination :: pagination">...</div>
         <div class="table-responsive">
-
-            <div th:replace="fragments/pagination :: pagination">...</div>
             <table class="table table-hover table-bordered table-striped" id="audit-activities"
                    th:if="${!page.isEmpty()}">
                 <thead class="thead-inverse uppercase">

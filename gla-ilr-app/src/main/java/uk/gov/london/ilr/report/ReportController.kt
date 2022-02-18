@@ -16,6 +16,7 @@ import org.springframework.ui.set
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
+import uk.gov.london.ilr.file.DataImportType
 import uk.gov.london.ilr.file.ERROR_FILE_TYPE
 import uk.gov.london.ilr.file.FileService
 import java.io.OutputStreamWriter
@@ -31,10 +32,11 @@ class ReportController(val reportService: ReportService,
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/reports")
     fun getReportsPage(model: Model): String {
+        model["pageTitle"] = "Reports"
         val fileSummaries = fileService.getAllFileSummaries().filter { !it.fileType.equals(ERROR_FILE_TYPE) }
         model["fileTypes"] = fileSummaries.map { it.fileType }.toSet()
-        model["fileSuffixes"] = fileSummaries.map { it.fileSuffix }.toSet()
-        model["ukprns"] = fileSummaries.map { it.ukprn }.toSet()
+        model["fileSuffixes"] = fileSummaries.map { it.fileSuffix }.toSet().sortedByDescending { it }.toList()
+        model["ukprns"] = fileSummaries.map { it.ukprn }.sortedBy { it }.toSet()
         return "reports"
     }
 
@@ -45,8 +47,14 @@ class ReportController(val reportService: ReportService,
                        @RequestParam ukprn: Int) : ResponseEntity<String> {
 
         val file = fileService.getFileEntity(fileType, fileSuffix, ukprn)
+
         return if (file == null) {
-            buildResponseEntity("error.txt", "text/plain", "No data validation issues for the selected ILR Return period")
+            val message = if (DataImportType.DATA_VALIDATION_ISSUES.description.equals(fileType))
+                    "No $fileType for the selected ILR Return period"
+                else
+                    "No $fileType data for the selected ILR Return period"
+
+            buildResponseEntity("error.txt", "text/plain", message)
         }
         else {
             buildResponseEntity("$fileType $ukprn $fileSuffix.csv", "text/csv", file.content)

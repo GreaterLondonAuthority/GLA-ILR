@@ -19,7 +19,7 @@ class DataImportService @Autowired constructor(val auditService: AuditService,
         for (file in filesSorted) {
             if (file.importType!!.canSendToOPS) {
                 val key = "${file.importType!!.description} ${file.academicYear} ${file.period}"
-                if (!foundMap.contains(key)) {
+                if (!foundMap.contains(key) && file.status != DataImportStatus.FAILED) {
                     foundMap.add(key)
                     file.canPushToOPS = true
                 }
@@ -55,6 +55,12 @@ class DataImportService @Autowired constructor(val auditService: AuditService,
         dataImportRepository.delete(dataImport)
         fileService.deleteByDataImportId(id)
         auditService.auditCurrentUserActivity("Deleted file '${dataImport.fileName}'")
+    }
+
+    @Transactional
+    fun delete(type: DataImportType, academicYear: Int, period: Int) {
+        val import = dataImportRepository.findByImportTypeAndAcademicYearAndPeriod(type, academicYear, period)
+        import?.id?.let {  this.delete(it) }
     }
 
 }

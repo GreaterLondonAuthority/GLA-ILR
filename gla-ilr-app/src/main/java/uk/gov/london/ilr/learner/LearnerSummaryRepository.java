@@ -18,13 +18,11 @@ import java.util.Set;
 public interface LearnerSummaryRepository extends JpaRepository<LearnerSummary, LearnerPK>,
     QuerydslPredicateExecutor<LearnerSummary> {
 
-    default Page<LearnerSummary> findAll(String learner, Set<Integer> ukprns, Integer academicYear,
-        Boolean filterBySupplementaryData, Pageable pageable) {
+    default Page<LearnerSummary> findAll(String learner, Set<Integer> ukprns, Integer academicYear, Pageable pageable) {
         Predicate predicate = new LearnerSummaryQueryBuilder()
                 .withLearner(learner)
                 .withUkprns(ukprns)
                 .withAcademicYear(academicYear)
-                .withFilterBySupplementaryData(filterBySupplementaryData)
                 .getPredicate();
         if (predicate == null) {
             return findAll(pageable);

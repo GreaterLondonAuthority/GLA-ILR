@@ -20,6 +20,12 @@
     <include file="liquibase/db.changelog-r1.9.xml" />
     <include file="liquibase/db.changelog-r2.2.xml" />
     <include file="liquibase/db.changelog-r2.4.xml" />
+    <include file="liquibase/db.changelog-r2.5.xml" />
+    <include file="liquibase/db.changelog-r2.6.xml"/>
+    <include file="liquibase/db.changelog-r2.8.xml"/>
+    <include file="liquibase/db.changelog-r3.2.xml"/>
+    <include file="liquibase/db.changelog-r3.3.xml"/>
+    <include file="liquibase/db.changelog-r3.4.xml"/>
 
     <!-- THIS NEEDS TO BE LAST -->
     <include file="liquibase/db.changelog-createViews.xml" />

@@ -13,8 +13,8 @@ class LearnerService @Autowired constructor(val learnerRepository: LearnerReposi
                                             val learnerSummaryRepository: LearnerSummaryRepository,
                                             val learningAimRepository: LearningAimRepository) {
 
-    fun getLearnersSummaries(learner: String?, ukprns: Set<Int>?, academicYear: Int?, filterBySupplementaryData: Boolean?, pageable: Pageable?): Page<LearnerSummary> {
-        return learnerSummaryRepository.findAll(learner, ukprns, academicYear, filterBySupplementaryData, pageable!!)
+    fun getLearnersSummaries(learner: String?, ukprns: Set<Int>?, academicYear: Int?, pageable: Pageable?): Page<LearnerSummary> {
+        return learnerSummaryRepository.findAll(learner, ukprns, academicYear, pageable!!)
     }
 
     fun getLearnersAcademicYears(): List<Int> {
@@ -31,5 +31,9 @@ class LearnerService @Autowired constructor(val learnerRepository: LearnerReposi
             delivery.aim = learningAimRepository.findById(LearningAimPK(delivery.aimReference!!, learnerId.year)).orElse(null)
         }
         return learningDelivery
+    }
+
+    fun learnerRecordByYearAndPeriodExists(year: Int, period: Int): Boolean {
+        return learnerRepository.recordByYearAndPeriodExists(year, period)
     }
 }

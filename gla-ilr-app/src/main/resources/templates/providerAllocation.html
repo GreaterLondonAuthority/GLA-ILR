@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
+      xml:lang="en" lang="en">
+<head>
+  <style>
+      .flex-container {
+          display: flex;
+          flex-wrap: nowrap;
+          justify-content: space-between;
+          border: 1px solid #ddd;
+      }
+
+      .flex-container > div {
+          width: 100%;
+      }
+
+      .flex-container > div:not(:last-child) {
+          border-right: 1px solid #ddd;
+      }
+
+      .sub-row-cell-header {
+          background-color: #ECECEC;
+          font-family: "Gotham-medium", "Helvetica Neue", "Helvetica", "Arial", "sans-serif";
+          padding: 5px 10px;
+      }
+
+      .sub-row-cell-value {
+          padding: 5px 10px;
+      }
+
+      .sub-row-cell-value:not(:last-child) {
+          border-right: 1px solid #ddd;
+      }
+
+      td h4 {
+          font-size: 16px;
+      }
+  </style>
+</head>
+<body>
+<div>
+  <section id="providerAllocationData" class="gla-main-section provider-allocation-page" layout:fragment="content">
+
+    <div class="page-header">
+      <h2 th:text="${pageTitle}"></h2>
+    </div>
+
+    <gla-well class="row provider-allocation-actions mbottom10 search-container ng-isolate-scope">
+      <div id="filter-panel" class="gla-well">
+        <form action="/providerAllocation" method="get">
+
+          <div class="col-md-2 search-column">
+            <label class="text-align-left" for="academic-year-filter">Academic year</label>
+            <select id="academic-year-filter" name="year" class="form-control">
+              <option value="">All</option>
+              <option th:each="year: ${academicYears}"
+                      th:value="${year}"
+                      th:text="${#gla.financialYear(year)}"
+                      th:selected="${#strings.equals(param.year, #strings.toString(year))}">
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-2 search-column">
+            <label class="text-align-left" for="ukprn-filter">UKPRN</label>
+            <div class="input-group">
+              <input id="ukprn-filter" type="number" placeholder="UKPRN" name="ukprn" th:value="${param.ukprn}" maxlength="2" class="form-control search-input allow-in-readonly">
+            </div>
+          </div>
+
+          <div class="col-md-2 search-column">
+            <div class="text-align-left"></div>
+            <button id="search-button" class="btn btn-secondary mtop15" type="submit">Search</button>
+          </div>
+
+          <div class="col-md-2 search-column pull-right">
+            <div class="text-align-left"></div>
+            <label th:if="${param.year != null || param.attribute != null}" class="mtop20 pull-right"><a href="/providerAllocation">Reset all</a></label>
+          </div>
+
+          <div class="col-md-12 pull-left text-align-left">
+            <span id="no-data-text" class="mtop20 pull-left" th:text="${noReturnData}"/>
+          </div>
+        </form>
+      </div>
+    </gla-well>
+
+    <div class="table-responsive">
+      <div th:replace="fragments/pagination :: pagination">...</div>
+      <table class="table table-bordered table-striped" id="provider-allocation-table"
+             th:if="${!page.isEmpty()}">
+        <thead class="thead-inverse uppercase">
+        <tr>
+          <th></th>
+          <th>ACADEMIC YEAR</th>
+          <th>UKPRN</th>
+          <th>OPS PROJECT TYPE</th>
+          <th>ALLOCATION TYPE</th>
+          <th>FULL TERM ALLOCATION £</th>
+          <th>FY ALLOCATION £</th>
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:each="providerAllocation,iter : ${page.content}">
+          <tr>
+            <td>
+              <div th:replace="fragments/toggleIcon :: toggleIcon(target=${'details-' + iter.index})">...</div>
+            </td>
+            <td th:text="${#gla.financialYear(providerAllocation.id.year)}"></td>
+            <td th:text="${providerAllocation.id.ukprn}"></td>
+            <td th:text="${providerAllocation.id.opsProjectType}"></td>
+            <td th:text="${providerAllocation.id.allocationType}"></td>
+            <td th:text="${#numbers.formatDecimal(providerAllocation.fullTermAllocation, 0, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${#numbers.formatDecimal(providerAllocation.yearlyAllocation, 0, 'COMMA', 2, 'POINT')}"></td>
+          </tr>
+          <tr class="sub-row collapse" th:id="|details-${iter.index}|">
+            <td colspan="7">
+              <h4>YTD Allocation Information £</h4>
+              <div class="flex-container">
+                <div th:each="allocation,iter : ${providerAllocation.ytdAllocations}">
+                  <div class="sub-row-cell-header">R<span th:text="${iter.index < 9? ('0' + (iter.index + 1)) : (iter.index + 1)}"></span></div>
+                  <div class="sub-row-cell-value" th:text="${#numbers.formatDecimal(allocation, 0, 'COMMA', 2, 'POINT')}"></div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </th:block>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+</body>
+</html>

@@ -7,11 +7,6 @@
  */
 package uk.gov.london.ilr.security;
 
-import static uk.gov.london.common.organisation.OrganisationType.LEARNING_PROVIDER;
-import static uk.gov.london.common.organisation.OrganisationType.MANAGING_ORGANISATION;
-import static uk.gov.london.ilr.security.User.SYSTEM_USER;
-
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,8 +17,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import uk.gov.london.common.organisation.BaseOrganisationImpl;
-import uk.gov.london.common.organisation.OrganisationType;
 import uk.gov.london.ilr.environment.Environment;
+
+import java.util.Optional;
+
+import static uk.gov.london.ilr.security.User.SYSTEM_USER;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -56,16 +54,15 @@ public class UserService implements UserDetailsService {
 
     private User getInitialisedTestUser(User user) {
         Role role = new Role("ROLE_OPS_ADMIN");
-        OrganisationType learningProvider = MANAGING_ORGANISATION;
         BaseOrganisationImpl organisation = new BaseOrganisationImpl();
 
         if (user.getUsername().startsWith("rp")) {
-            learningProvider = LEARNING_PROVIDER;
             role = new Role("ROLE_ORG_ADMIN");
-            organisation.setExternalReference("10000020");
+            organisation.setExternalReference("");
+        } else if (user.getUsername().startsWith("org")) {
+            role = new Role("ROLE_GLA_ORG_ADMIN");
         }
-        organisation.setType(learningProvider);
-        organisation.setEntityType(organisation.getType().id());
+
         role.setOrganisation(organisation);
         user.getRoles().add(role);
         role.setApproved(true);

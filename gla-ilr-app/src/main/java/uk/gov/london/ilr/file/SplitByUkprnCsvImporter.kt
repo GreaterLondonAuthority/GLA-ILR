@@ -20,12 +20,12 @@ class SplitByUkprnCsvImporter @Autowired constructor(val fileService: FileServic
 
     internal var log = LoggerFactory.getLogger(javaClass)
 
-    fun createDataValidationIssueRecords(dataImport: DataImport, inputStream: InputStream) {
+    fun createSplitByUKPRNFile(dataImport: DataImport, inputStream: InputStream) {
         val csvFile = CSVFile(inputStream)
-        createDataValidationIssueRecords(dataImport, csvFile)
+        createSplitByUKPRNFile(dataImport, csvFile)
     }
 
-    fun createDataValidationIssueRecords(dataImport: DataImport, csvFile: CSVFile) {
+    fun createSplitByUKPRNFile(dataImport: DataImport, csvFile: CSVFile) {
         validateCSVFile(csvFile)
         val contentSplitByUKPRN = splitContentPerUKPRN(csvFile)
         saveSplitByUKPRNContent(dataImport, contentSplitByUKPRN)
@@ -41,13 +41,13 @@ class SplitByUkprnCsvImporter @Autowired constructor(val fileService: FileServic
         val contentSplitByUKPRN = mutableMapOf<Int, StringBuilder>()
 
         while (csvFile.nextRow()) {
-            processDataValidationIssuesRow(csvFile, contentSplitByUKPRN)
+            processSplitFile(csvFile, contentSplitByUKPRN)
         }
 
         return contentSplitByUKPRN
     }
 
-    private fun processDataValidationIssuesRow(csvFile: CSVFile, contentSplitByUKPRN: MutableMap<Int, StringBuilder>) {
+    private fun processSplitFile(csvFile: CSVFile, contentSplitByUKPRN: MutableMap<Int, StringBuilder>) {
         val ukprn = csvFile.getIntegerOrNull(UKPRN)
         if (ukprn != null) {
             appendRowToContent(ukprn, csvFile, contentSplitByUKPRN)
