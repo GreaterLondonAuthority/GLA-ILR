@@ -9,21 +9,6 @@
                 window.location.href = '/learners/lrn/' + learnerId + '/ukprn/' + ukprn + '/year/' + year;
             }
         }
-
-        function toggleDisplay(id) {
-            var row = document.getElementById('details.' + id);
-            var icon = document.getElementById('icon.' + id);
-            if (row.style.display === "none") {
-                row.style.display = "";
-                icon.classList.toggle("glyphicon-chevron-right")
-                icon.classList.toggle("glyphicon-chevron-down")
-            } else {
-                row.style.display = "none";
-                icon.classList.toggle("glyphicon-chevron-right")
-                icon.classList.toggle("glyphicon-chevron-down")
-
-            }
-        }
     </script>
 </head>
 
@@ -31,155 +16,76 @@
 <div>
     <section id="learners" class="gla-main-section learners" layout:fragment="content">
 
-        <div class="page-header">
-            <h2 >Learners</h2>
-        </div>
+      <div class="page-header">
+        <h2 th:text="${pageTitle}"></h2>
+      </div>
 
-        <div id="upload-success-message" class="row mtop10 text-md-center" th:if="${numberOfRecordsUpdated}">
-            <h4 th:text="${numberOfRecordsUpdated}"></h4>
-        </div>
-
-        <div id="upload-error-message" class="row mtop10 text-md-center error" th:if="${errorMessage}">
-            <h4 th:text="${errorMessage}"></h4>
-        </div>
-
-        <div id="upload-error-message" class="row mtop10 text-md-center error" th:if="${errorMessageList}">
-            <div th:each="error : ${errorMessageList}" >
-                <h5 th:text="${error}"></h5>
+      <gla-well class="row programmes-list-actions mbottom10 search-container">
+        <div id="filter-panel" class="gla-well">
+          <form id="learnersForm" action="/learners" method="get">
+            <div class="col-md-3 search-column">
+              <label class="text-align-left" for="learner-filter">Learner</label>
+              <input id="learner-filter" type="text" placeholder="Learner number or reference" name="learner" th:value="${param.learner}" maxlength="13"
+                     class="form-control search-input allow-in-readonly">
             </div>
-        </div>
 
-        <div th:if="${errorFileExists}" class="row mtop10 text-md-center">
-            <div><a th:href="${downloadURL}"><img src="/images/download.svg"/></a></div>
-            <div><a th:href="${downloadURL}"> Download the supplementary error file, amend the contents and try again</a></div>
-        </div>
+            <div class="col-md-2 search-column">
+              <label class="text-align-left" for="ukprn-filter">UKPRN</label>
+              <div class="input-group">
+                <input id="ukprn-filter" type="number" placeholder="UKPRN" name="ukprn" th:value="${param.ukprn}" maxlength="2" class="form-control search-input allow-in-readonly">
+              </div>
+            </div>
 
-        <div class="row ">
-            <form id="data-upload-form" method="POST" enctype="multipart/form-data" action="/uploadSupplementalData">
-                <input id="file-select-input" type="file" name="file" style="display: none" onchange="document.getElementById('file-submit-btn').click()" />
-                <button id="file-select-btn" class="btn btn-secondary pull-right" type="button" style="margin-bottom: 15px"
-                        onclick="document.getElementById('file-select-input').click()">UPLOAD GLA DATA</button>
-                <button id="file-submit-btn" type="submit" style="display: none"></button>
-            </form>
-        </div>
+            <div class="col-md-2 search-column">
+              <label class="text-align-left" for="academic-year-filter">Academic year</label>
+              <div class="input-group">
+                <select id="academic-year-filter" class="form-control" name="academicYear">
+                  <option value="">All</option>
+                  <option th:each="academicYear: ${academicYears}"
+                          th:value="${academicYear}"
+                          th:text="${#gla.financialYear(academicYear)}"
+                          th:selected="${#strings.equals(param.academicYear, #strings.toString(academicYear))}"></option>
+                </select>
+              </div>
+            </div>
 
+            <div class="col-md-2 search-column">
+              <div class="text-align-left"></div>
+              <button id="search-button" class="btn btn-secondary mtop15" type="submit">Search</button>
+            </div>
+
+            <div class="col-md-2 search-column pull-right">
+              <div class="text-align-left"></div>
+              <label th:if="${param.learner != null || param.ukprn != null || param.academicYear != null}" class="mtop20 pull-right"><a href="/learners">Reset all</a></label>
+            </div>
+
+            <div class="col-md-12 pull-left text-align-left">
+              <span id="no-data-text" class="mtop20 pull-left" th:text="${noReturnData}"/>
+            </div>
+          </form>
+        </div>
+      </gla-well>
+
+        <div th:replace="fragments/pagination :: pagination">...</div>
         <div class="table-responsive">
-
-            <well class="row programmes-list-actions mbottom10 search-container">
-                <div id="filter-panel" class="gla-well">
-                    <form id="learnersForm" action="/learners" method="get">
-                        <div class="col-md-3 search-column">
-                            <div class="text-align-left">Learner</div>
-                            <input id="learner-filter" type="text" placeholder="Learner number or reference" name="learner" th:value="${param.learner}" maxlength="13" class="form-control search-input allow-in-readonly">
-                        </div>
-
-                        <div class="col-md-2 search-column">
-                            <div class="text-align-left">UKPRN</div>
-                            <div class="input-group">
-                                <input id="ukprn-filter" type="number" placeholder="UKPRN" name="ukprn" th:value="${param.ukprn}" maxlength="2" class="form-control search-input allow-in-readonly">
-                            </div>
-                        </div>
-
-                        <div class="col-md-2 search-column">
-                            <div class="text-align-left">Academic year</div>
-                            <div class="input-group">
-                                <select id="academic-year-filter" name="academicYear">
-                                    <option value="">All</option>
-                                    <option th:each="academicYear: ${academicYears}"
-                                            th:value="${academicYear}"
-                                            th:text="${#gla.financialYear(academicYear)}"
-                                            th:selected="${#strings.equals(param.academicYear, #strings.toString(academicYear))}"></option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2 search-column">
-                            <div class="text-align-left">GLA data</div>
-                            <div class="input-group">
-                                <select id="filter-by-supplementary-data" name="filterBySupplementaryData">
-                                    <option th:value="${null}" th:selected="${#strings.equals(param.filterBySupplementaryData, null)}">All</option>
-                                    <option th:value="${true}" th:selected="${#strings.equals(param.filterBySupplementaryData, true)}">Data uploaded</option>
-                                    <option th:value="${false}" th:selected="${#strings.equals(param.filterBySupplementaryData, false)}">Data not uploaded</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2 search-column">
-                            <div class="text-align-left"></div>
-                            <button id="search-button" class="btn btn-secondary mtop15" type="submit">Search</button>
-                        </div>
-
-                        <div class="col-md-2 search-column pull-right">
-                            <div class="text-align-left"></div>
-                            <label th:if="${param.learner != null || param.ukprn != null || param.academicYear != null}" class="mtop20 pull-right"><a href="/learners">Reset all</a></label>
-                        </div>
-
-                        <div class="col-md-12 pull-left text-align-left" >
-                            <span id="no-data-text" class="mtop20 pull-left" th:text="${noReturnData}"/>
-                        </div>
-                    </form>
-                </div>
-            </well>
-
-            <div th:replace="fragments/pagination :: pagination">...</div>
             <table class="table table-hover table-bordered table-striped" id="learners-table" th:if="${!page.isEmpty()}">
                 <thead class="thead-inverse uppercase">
                 <tr>
-                    <th></th>
-                    <th>LEARNER REFERENCE</th>
-                    <th>UNIQUE LEARNER NUMBER</th>
-                    <th>ACADEMIC YEAR</th>
-                    <th>UKPRN</th>
-                    <th>INVESTMENT PRIORITY</th>
-                    <th>BASIC SKILLS</th>
-                    <th>HOMELESS</th>
+                  <th id="learner-reference">LEARNER REFERENCE</th>
+                  <th>UNIQUE LEARNER NUMBER</th>
+                  <th>ACADEMIC YEAR</th>
+                  <th>UKPRN</th>
                 </tr>
                 </thead>
                 <th:block th:each="learnerRecord,iter : ${page.content}">
                     <tr th:data1="${learnerRecord.id.learnerReferenceNumber}"
+                        class="allow-enter"
+                        tabindex="0"
                         th:onclick="|goToIndividualLearnerPage(this.getAttribute('data1'),'${learnerRecord.id.ukprn}' ,'${learnerRecord.id.year}')|">
-                        <td>
-                            <span class="glyphicon glyphicon-chevron-right"
-                                  th:data1="${learnerRecord.id.toString()}"
-                                  th:onclick="|event.stopPropagation();toggleDisplay(this.getAttribute('data1'))|"
-                                  th:if="${learnerRecord.lastSupplementaryDataUpload}"
-                                  th:id="|icon.${learnerRecord.id.toString()}|"></span>
-                        </td>
-                        <td th:text="${learnerRecord.id.learnerReferenceNumber}"></td>
-                        <td th:text="${learnerRecord.learnerId}"></td>
-                        <td th:text="${#gla.financialYear(learnerRecord.id.year)}"></td>
-                        <td th:text="${learnerRecord.id.ukprn}"></td>
-                        <td th:text="${learnerRecord.investmentPriorityClaimedUnder}"></td>
-                        <td th:text="${learnerRecord.hasBasicSkills}"></td>
-                        <td th:text="${learnerRecord.homeless}"></td>
-                    </tr>
-                    <tr th:id="${'details.' + learnerRecord.id.toString()}" style="display: none">
-                        <td colspan="8">
-                            <div class="col-md-12 text-align-left ">
-                                <h4>Additional Information</h4>
-                            </div>
-
-                            <div class="col-md-2">
-                                <div class="bolder">Highest educational attainment at ESF start</div>
-                                <div id="highestEducationalAttainmentAtEsfStart" th:text="${learnerRecord.highestEducationalAttainmentAtEsfStart}"></div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="bolder">Progressing into education or training as ESF result</div>
-                                <div id="progressingIntoEducationOrTrainingAsEsfResult" th:text="${learnerRecord.progressingIntoEducationOrTrainingAsEsfResult}"></div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="bolder">Start date for education or training ESF result</div>
-                                <div id="startDateForEducationOrTrainingEsfResult" th:text="${learnerRecord.startDateForEducationOrTrainingEsfResult}"></div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="bolder">Has left ESF program</div>
-                                <div id="hasLeftEsfProgram" th:text="${learnerRecord.hasLeftEsfProgram}"></div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="bolder">ESF leave date</div>
-                                <div id="esfLeaveDate" th:text="${learnerRecord.esfLeaveDate}"></div>
-                            </div>
-                        </td>
+                      <td th:id="${'lrn-' + learnerRecord.id.learnerReferenceNumber}" th:text="${learnerRecord.id.learnerReferenceNumber}"></td>
+                      <td th:text="${learnerRecord.learnerId}"></td>
+                      <td th:text="${#gla.financialYear(learnerRecord.id.year)}"></td>
+                      <td th:text="${learnerRecord.id.ukprn}"></td>
                     </tr>
                 </th:block>
             </table>

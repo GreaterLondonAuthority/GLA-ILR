@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="43" author="ybouhass">
+        <renameColumn tableName="supplementary_data" oldColumnName="has_left_esf_program"
+                      newColumnName="has_left_esf_programme"/>
+    </changeSet>
+
+    <changeSet id="44" author="jsingh">
+        <createTable tableName="provider_allocation">
+            <column name="year" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="ukprn" type="INT4">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="ops_project_type" type="varchar(50)" remarks="Grant or Procured">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="allocation_type" type="varchar(50)" remarks="For Grant: AEB Allocation, Adult Skills delivery allocation, Community Learning delivery allocation ,Innovation Fund , CV19 Response Fund Strand 1 and more to be added
+                  For Procured:  AEB allocation , AEB allocation  Lot 1, AEB allocation  Lot 2 etc">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="full_term_allocation" type="decimal" remarks ="Whole term value of allocation: differs from annual allocation where the allocation duration extends across more than one academic year."/>
+            <column name="yearly_allocation" type="decimal" remarks ="Annual value of allocation for the Academic Year"/>
+            <column name="ytd_allocation_r01" type="decimal"/>
+            <column name="ytd_allocation_r02" type="decimal"/>
+            <column name="ytd_allocation_r03" type="decimal"/>
+            <column name="ytd_allocation_r04" type="decimal"/>
+            <column name="ytd_allocation_r05" type="decimal"/>
+            <column name="ytd_allocation_r06" type="decimal"/>
+            <column name="ytd_allocation_r07" type="decimal"/>
+            <column name="ytd_allocation_r08" type="decimal"/>
+            <column name="ytd_allocation_r09" type="decimal"/>
+            <column name="ytd_allocation_r10" type="decimal"/>
+            <column name="ytd_allocation_r11" type="decimal"/>
+            <column name="ytd_allocation_r12" type="decimal"/>
+            <column name="ytd_allocation_r13" type="decimal"/>
+            <column name="ytd_allocation_r14" type="decimal"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

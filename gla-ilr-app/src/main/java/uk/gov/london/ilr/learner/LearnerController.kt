@@ -16,10 +16,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.ui.Model
 import org.springframework.ui.set
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import org.togglz.core.manager.FeatureManager
@@ -45,11 +42,13 @@ class LearnerController(private val fileUploadHandler: FileUploadHandler,
     @PostMapping("/uploadSupplementalData")
     fun handleFileUploadSupplementalData(@RequestParam("file") file: MultipartFile, redirectAttributes: RedirectAttributes): String {
         try {
-            if (!file.originalFilename!!.toUpperCase().endsWith(".CSV")) {
-                throw RuntimeException("Upload failed: File must be in CSV format, to do this save an excel file as a .CSV")
+            val filename = file.originalFilename!!
+            if (!filename.toUpperCase().endsWith(".CSV")) {
+                throw RuntimeException("File must be in CSV format, to do this save an excel file as a .CSV")
             }
 
-            val result = fileUploadHandler.upload(file.originalFilename, file.inputStream, DataImportType.SUPPLEMENTARY_DATA, userService.currentUserName())
+            supplementaryDataService.validateFileAvailableForUpload(extractYearFromFilename(filename, DataImportType.SUPPLEMENTARY_DATA), extractPeriodFromFilename(filename, DataImportType.SUPPLEMENTARY_DATA))
+            val result = fileUploadHandler.upload(filename, file.inputStream, DataImportType.SUPPLEMENTARY_DATA, userService.currentUserName())
 
             if (result.errorMessages.isNotEmpty()) {
                 redirectAttributes.addFlashAttribute("errorMessageList", result.errorMessages)
@@ -60,16 +59,37 @@ class LearnerController(private val fileUploadHandler: FileUploadHandler,
             redirectAttributes.addFlashAttribute("errorMessage", e.message)
         }
 
-        return "redirect:/learners"
+        return "redirect:/supplementaryData"
     }
 
-    @PreAuthorize("hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE', 'GLA_READ_ONLY', 'ORG_ADMIN', 'PROJECT_EDITOR', 'PROJECT_READER')" )
+    @PreAuthorize("authentication.name == '' or hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE', 'GLA_READ_ONLY', 'ORG_ADMIN', 'PROJECT_EDITOR', 'PROJECT_READER')" )
     @GetMapping("/learners")
     @Transactional
     fun learners(@RequestParam(required = false) learner: String?,
                  @RequestParam(required = false) ukprn: Int?,
                  @RequestParam(required = false) academicYear: Int?,
-                 @RequestParam(required = false) filterBySupplementaryData: Boolean?,
+                 @PageableDefault(size = 50) pageable: Pageable,
+                 model: Model): String {
+        if (searchNotAllowed(ukprn)) {
+            model["noReturnData"] = "You not allowed to see data from UKPRN $ukprn"
+        }
+        else {
+            val ukprns : Set<Int>? = getSearchUkprns(ukprn)
+            model["page"] = PagingControls(learnerService.getLearnersSummaries(learner, ukprns, academicYear, pageable))
+            model["academicYears"] = learnerService.getLearnersAcademicYears()
+            model["learnerDetailsPageEnabled"] = featureManager.isActive(IlrFeature.LEARNER_DETAILS_PAGE)
+            model["pageTitle"] = "Occupancy Data"
+
+        }
+        return "learners"
+    }
+
+    @PreAuthorize("authentication.name == '' or hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE', 'GLA_READ_ONLY', 'ORG_ADMIN', 'PROJECT_EDITOR', 'PROJECT_READER')" )
+    @GetMapping("/supplementaryData")
+    @Transactional
+    fun supplementaryData(@RequestParam(required = false) learner: String?,
+                 @RequestParam(required = false) ukprn: Int?,
+                 @RequestParam(required = false) academicYear: Int?,
                  @PageableDefault(size = 50) pageable: Pageable,
                  model: Model): String {
         if (searchNotAllowed(ukprn)) {
@@ -79,16 +99,16 @@ class LearnerController(private val fileUploadHandler: FileUploadHandler,
             val ukprns : Set<Int>? = getSearchUkprns(ukprn)
             val latestImportForUser = dataImportService.getLatestImportForUser(userService.currentUserName(), DataImportType.SUPPLEMENTARY_DATA.name)
 
-            model["page"] = PagingControls(learnerService.getLearnersSummaries(learner, ukprns, academicYear, filterBySupplementaryData, pageable))
-            model["academicYears"] = learnerService.getLearnersAcademicYears()
-            model["learnerDetailsPageEnabled"] = featureManager.isActive(IlrFeature.LEARNER_DETAILS_PAGE)
+            model["page"] = PagingControls(supplementaryDataService.getSupplementaryDataSummaries(learner, ukprns, academicYear, pageable))
+            model["academicYears"] = supplementaryDataService.getDistinctAcademicYears()
             if (latestImportForUser != null) {
                 model["errorFileExists"] = fileService.findByDataImportId(latestImportForUser.id!!) != null
                 model["downloadURL"] = "/downloadErrorFile/" + latestImportForUser.id
             }
+            model["pageTitle"] = "Supplementary Data"
 
         }
-        return "learners"
+        return "supplementaryData"
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -116,13 +136,16 @@ class LearnerController(private val fileUploadHandler: FileUploadHandler,
         }
     }
 
-    private fun getFileNameForDownload(dataImportRecord: DataImport) : String {
-        val date= dataImportRecord.createdOn!!.format(DateTimeFormatter.ofPattern("ddMMyyyyHHmmss"))
-        val fileName = dataImportRecord.fileName!!.replace("\\s+\\d+\\.".toRegex(),".");
-        val suffix = fileName.substring(fileName.lastIndexOf("."))
-        val prefix = fileName.substring(0, fileName.length-suffix.length)
-        return "$prefix $date$suffix"
-
+    fun getFileNameForDownload(dataImportRecord: DataImport): String {
+        val date = dataImportRecord.createdOn!!.format(DateTimeFormatter.ofPattern("ddMMyyyyHHmmss"))
+        val fileName = dataImportRecord.fileName!!
+        val prefix = if (fileName.matches("(.*) \\d{14} \\d{4} \\d{2}(.csv)".toRegex())) {
+            fileName.substring(0, fileName.length - 27)
+        } else {
+            fileName.substring(0, fileName.length - 12)
+        }
+        val suffix = fileName.substring(fileName.length - 11)
+        return "$prefix $date $suffix"
     }
 
     private fun buildResponseEntity(fileName: String, contentType: String, content: String) : ResponseEntity<String> {
@@ -150,13 +173,14 @@ class LearnerController(private val fileUploadHandler: FileUploadHandler,
         }
     }
 
-    @PreAuthorize("hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE', 'GLA_READ_ONLY')" )
+    @PreAuthorize("authentication.name == '' or hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE', 'GLA_READ_ONLY')" )
     @GetMapping("/learners/lrn/{lrn}/ukprn/{ukprn}/year/{year}")
     @Transactional
     fun getLearner(
             @PathVariable lrn: String,
             @PathVariable ukprn: Int,
             @PathVariable year: Int, model: Model): String {
+        model["pageTitle"] = "Unique Learner Number"
 
         val id= LearnerPK(lrn, ukprn, year)
 

@@ -34,13 +34,19 @@ public class FundingSummaryRecord {
 
     private String fundingLine;
 
+    private String esfaFundingLine;
+
     private String source;
 
     private String category;
 
+    private String esfaFundingCategory;
+
     private BigDecimal monthTotal;
 
     private BigDecimal totalPayment;
+
+    private String providerName;
 
     public Integer getId() {
         return id;
@@ -86,10 +92,23 @@ public class FundingSummaryRecord {
         return totalPayment;
     }
 
+    public String getEsfaFundingLine() {
+        return esfaFundingLine;
+    }
+
+    public String getEsfaFundingCategory() {
+        return esfaFundingCategory;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+
     public FundingSummaryRecord() {}
 
     public FundingSummaryRecord(Integer academicYear, Integer period, Integer actualYear, Integer actualMonth, Integer ukprn,
-                         String fundingLine, String source, String category, BigDecimal monthTotal, BigDecimal totalPayment) {
+                         String fundingLine, String source, String category, BigDecimal monthTotal, BigDecimal totalPayment,
+                                String esfaFundingLine, String esfaFundingCategory) {
         this.academicYear = academicYear;
         this.period = period;
         this.actualYear = actualYear;
@@ -100,6 +119,17 @@ public class FundingSummaryRecord {
         this.category = category;
         this.monthTotal = monthTotal;
         this.totalPayment = totalPayment;
+        this.esfaFundingLine = esfaFundingLine;
+        this.esfaFundingCategory = esfaFundingCategory;
+    }
+
+    public FundingSummaryRecord(Integer academicYear, Integer period, Integer actualYear, Integer actualMonth,
+                                Integer ukprn, String fundingLine, String source, String category,
+                                BigDecimal monthTotal, BigDecimal totalPayment, String esfaFundingLine,
+                                String esfaFundingCategory, String providerName) {
+        this(academicYear, period, actualYear, actualMonth, ukprn, fundingLine,
+                source, category, monthTotal, totalPayment, esfaFundingLine, esfaFundingCategory);
+        this.providerName = providerName;
     }
 
 }

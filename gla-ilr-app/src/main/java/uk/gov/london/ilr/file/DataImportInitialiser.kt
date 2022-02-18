@@ -16,16 +16,11 @@ import uk.gov.london.ilr.init.DataInitialiser.SETUP
 import uk.gov.london.ilr.init.DataInitialiser.TEARDOWN
 import uk.gov.london.ilr.init.DataInitialiserAction
 import uk.gov.london.ilr.init.DataInitialiserModule
-import uk.gov.london.ilr.learner.RefDataMappingRepository
-import uk.gov.london.ilr.learner.SupplementaryDataRepository
-import uk.gov.london.ilr.security.User
 import uk.gov.london.ilr.security.UserService
 
 @Component
 class DataImportInitialiser(@Autowired val dataImportRepository: DataImportRepository,
                             @Autowired val fundingSummaryRecordRepository: FundingSummaryRecordRepository,
-                            @Autowired val supplementaryDataRepository: SupplementaryDataRepository,
-                            @Autowired val refDataMappingRepository: RefDataMappingRepository,
                             @Autowired val fileUploadHandler: FileUploadHandler,
                             @Autowired val userService: UserService,
                             @Autowired val jdbcTemplate: JdbcTemplate,
@@ -36,12 +31,13 @@ class DataImportInitialiser(@Autowired val dataImportRepository: DataImportRepos
     override fun actions(): Array<DataInitialiserAction> {
         return arrayOf(
                 DataInitialiserAction("Delete ILR data", TEARDOWN, false, Runnable { this.deleteIlrData() }),
-                DataInitialiserAction("Delete ILR reference data", TEARDOWN, true, Runnable { this.deleteRefDataMapping() }),
+                DataInitialiserAction("Delete ILR reference data", TEARDOWN, false, Runnable { this.deleteRefDataMapping() }),
                 DataInitialiserAction("Setup Test Funding  Summary Report data", SETUP, false, Runnable { this.createTestFundingSummaryReportData() }),
                 DataInitialiserAction("Setup Test Occupancy Report data", SETUP, false, Runnable { this.createTestOccupancyReportData() }),
-                DataInitialiserAction("Setup Test Supplemental Data", SETUP,  false, Runnable { this.createTestSupplementalData() }),
+                DataInitialiserAction("Setup Test Supplemental Data", SETUP, false, Runnable { this.createTestSupplementalData() }),
                 DataInitialiserAction("Setup Test Data Validation Issues", SETUP, false, Runnable { this.createTestDataValidationIssues() }),
-                DataInitialiserAction("Setup reference data mappings", SETUP, true, Runnable { this.createRefDataMapping() })
+                DataInitialiserAction("Setup reference data mappings", SETUP, false, Runnable { this.createRefDataMapping() }),
+                DataInitialiserAction("Setup test provider allocation data", SETUP, false, Runnable { this.createTestProviderAllocationData() })
         )
     }
 
@@ -53,6 +49,7 @@ class DataImportInitialiser(@Autowired val dataImportRepository: DataImportRepos
         deleteOccupancyRecords()
         deleteLearnerRecords()
         deleteRefDataMapping()
+        deleteProviderAllocationData()
         fileService.deleteTestData()
     }
 
@@ -73,12 +70,19 @@ class DataImportInitialiser(@Autowired val dataImportRepository: DataImportRepos
         jdbcTemplate.execute("delete from ref_data_mapping")
     }
 
+    private fun deleteProviderAllocationData() {
+        log.info("Deleting provider allocation data")
+        jdbcTemplate.execute("delete from provider_allocation")
+    }
+
     private fun createTestOccupancyReportData() {
         log.info("Creating test occupancy report data")
+        uploadNewOccupancyReport("")
     }
 
     private fun createTestSupplementalData() {
         log.info("Creating test Supplemental Report")
+        uploadOSupplementalData("")
     }
 
     private fun uploadNewOccupancyReport(fileName: String) {
@@ -90,11 +94,19 @@ class DataImportInitialiser(@Autowired val dataImportRepository: DataImportRepos
     }
 
     private fun uploadOSupplementalData(fileName: String) {
+        try {
+            fileUploadHandler.upload(fileName, this.javaClass.getResourceAsStream(fileName), DataImportType.SUPPLEMENTARY_DATA, "")
+        } catch (e: Exception) {
+            log.error("failed to create test supplement report: $fileName", e)
+        }
     }
 
     private fun createTestDataValidationIssues() {
         log.info("Creating test Data Validation Issues")
-        uploadDataValidationIssues("Data Validation Issues 2020 09.csv")
+        uploadDataValidationIssues("")
+        uploadDataValidationIssues("")
+        uploadDataValidationIssues("")
+        uploadDataValidationIssues("")
     }
 
     private fun uploadDataValidationIssues(fileName: String) {
@@ -107,6 +119,10 @@ class DataImportInitialiser(@Autowired val dataImportRepository: DataImportRepos
 
     private fun createTestFundingSummaryReportData() {
         log.info("Creating test funding summary report data")
+
+        uploadFundingSummaryReport("")
+        uploadFundingSummaryReport("")
+        uploadFundingSummaryReport("")
     }
 
     private fun uploadFundingSummaryReport(fileName: String) {
@@ -119,5 +135,23 @@ class DataImportInitialiser(@Autowired val dataImportRepository: DataImportRepos
 
     private fun createRefDataMapping() {
         log.info("Creating reference data mapping test data")
+
+        try {
+            val fileName = ""
+            fileUploadHandler.upload(fileName, this.javaClass.getResourceAsStream(fileName), DataImportType.ILR_CODE_VALUES)
+        } catch (e: Exception) {
+            log.error("failed to create reference data mapping test data", e)
+        }
+    }
+
+    private fun createTestProviderAllocationData() {
+        log.info("Creating provider allocation test data")
+
+        try {
+            val fileName = ""
+            fileUploadHandler.upload(fileName, this.javaClass.getResourceAsStream(fileName), DataImportType.PROVIDER_ALLOCATION)
+        } catch (e: Exception) {
+            log.error("failed to create provider allocation test data", e)
+        }
     }
 }

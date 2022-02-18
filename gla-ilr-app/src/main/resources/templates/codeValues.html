@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/glailrlayout}"
+      xml:lang="en" lang="en">
+<body>
+<div>
+    <section id="codeValues" class="gla-main-section" layout:fragment="content">
+
+        <div class="page-header">
+            <h2>ILR Code Values</h2>
+        </div>
+
+        <!--        <div class="row ">-->
+        <!--            <form id="data-upload-form" method="POST" enctype="multipart/form-data" action="/upload">-->
+        <!--                <input id="file-select-input" type="file" name="file" style="display: none" onchange="document.getElementById('file-submit-btn').click()" />-->
+        <!--                <input type="hidden" name="redirectTo" value="codeValues" />-->
+        <!--                <button id="file-select-btn" class="btn btn-secondary pull-right" type="button" style="margin-bottom: 15px"-->
+        <!--                        onclick="document.getElementById('file-select-input').click()">UPLOAD +</button>-->
+        <!--                <button id="file-submit-btn" type="submit" style="display: none"></button>-->
+        <!--            </form>-->
+        <!--        </div>-->
+
+        <gla-well class="row code-values-actions mbottom10 search-container ng-isolate-scope">
+            <div id="filter-panel" class="gla-well">
+                <form action="/codeValues" method="get">
+
+                    <div class="col-md-2 search-column">
+                        <label class="text-align-left" for="academic-year-filter"> Academic year</label>
+                        <select id="academic-year-filter" name="year" class="form-control">
+                            <option value="">All</option>
+                            <option th:each="year: ${academicYears}"
+                                    th:value="${year}"
+                                    th:text="${#gla.financialYear(year)}"
+                                    th:selected="${#strings.equals(param.year, #strings.toString(year))}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 search-column">
+                        <label class="text-align-left" for="attribute-filter">Attribute</label>
+                        <select id="attribute-filter" name="attribute" class="form-control">
+                            <option th:value="${null}">All</option>
+                            <option th:each="attribute: ${attributes}"
+                                    th:value="${attribute}"
+                                    th:text="${attribute}"
+                                    th:selected="${#strings.equals(param.attribute, #strings.toString(attribute))}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 search-column">
+                        <div class="text-align-left"></div>
+                        <button id="search-button" class="btn btn-secondary mtop15" type="submit">Search</button>
+                    </div>
+
+                    <div class="col-md-2 search-column pull-right">
+                        <div class="text-align-left"></div>
+                        <label th:if="${param.year != null || param.attribute != null}" class="mtop20 pull-right"><a href="/codeValues">Reset all</a></label>
+                    </div>
+
+                    <div class="col-md-12 pull-left text-align-left">
+                        <span id="no-data-text" class="mtop20 pull-left" th:text="${noReturnData}"/>
+                    </div>
+                </form>
+            </div>
+        </gla-well>
+
+        <div class="table-responsive">
+            <div th:replace="fragments/pagination :: pagination">...</div>
+            <table class="table table-hover table-bordered table-striped" id="code-values-table"
+                   th:if="${!page.isEmpty()}">
+                <thead class="thead-inverse uppercase">
+                <tr>
+                    <th>ACADEMIC YEAR</th>
+                    <th>ATTRIBUTE</th>
+                    <th>CODE</th>
+                    <th>VALUE 1-ILR</th>
+                    <th>VALUE 2-DETAILED</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="referenceData,iter : ${page.content}">
+                    <td th:text="${#gla.financialYear(referenceData.id.year)}"></td>
+                    <td th:text="${referenceData.id.attribute}"></td>
+                    <td th:text="${referenceData.id.code}"></td>
+                    <td th:text="${referenceData.headlineValue}"></td>
+                    <td th:text="${referenceData.detailedValue}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+</body>
+</html>

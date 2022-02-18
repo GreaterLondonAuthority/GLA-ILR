@@ -13,11 +13,14 @@
                 row.style.display = "";
                 icon.classList.toggle("glyphicon-chevron-right")
                 icon.classList.toggle("glyphicon-chevron-down")
+                $(icon).attr('aria-expanded', true);
+                $(icon).attr('aria-label', 'Collapse');
             } else {
                 row.style.display = "none";
                 icon.classList.toggle("glyphicon-chevron-right")
                 icon.classList.toggle("glyphicon-chevron-down")
-
+                $(icon).attr('aria-expanded', true);
+                $(icon).attr('aria-label', 'Collapse');
             }
         }
     </script>
@@ -90,7 +93,8 @@
 
 
         <div class="col-md-12">
-        <table class="table table-hover table-bordered table-striped" id="learner-occupancy-table"
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered table-striped" id="learner-occupancy-table"
                th:if="${!delivery.isEmpty()}">
             <thead class="thead-inverse uppercase">
             <tr>
@@ -104,8 +108,12 @@
             </tr>
             <tbody th:each="occupancyRecord,iter : ${delivery}">
                 <tr >
-                    <td >
-                        <span class="glyphicon glyphicon-chevron-right"
+                    <td>
+                        <span class="glyphicon glyphicon-chevron-right allow-enter dark-focus"
+                              tabindex="0"
+                              role="button"
+                              aria-expanded="false"
+                              aria-label="Expand"
                               th:data1="${occupancyRecord.id.keyString}"
                               th:onclick="|toggleDisplay(this.getAttribute('data1'))|"
                               th:id="|icon.${occupancyRecord.id.keyString}|" />
@@ -137,6 +145,7 @@
                 </tr>
             </tbody>
         </table>
+        </div>
         </div>
     </section>
 

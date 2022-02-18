@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet id="46" author="jdimsa">
+    <addColumn tableName="supplementary_data">
+      <column name="period" type="INT4"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="47" author="jdimsa">
+    <addColumn tableName="supplementary_data">
+      <column name="esf_returner" type="INT4" />
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>

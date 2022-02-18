@@ -64,12 +64,12 @@
             <h2>Occupancy Summary </h2>
         </div>
         <form th:action="${'/occupancySummary/'}" method="get" id ="search">
-            <well class="row programmes-list-actions mbottom10 search-container ng-isolate-scope">
+            <gla-well class="row programmes-list-actions mbottom10 search-container ng-isolate-scope">
                 <div id="filter-panel" class="gla-well">
 
                     <div class="col-md-2 search-column">
                         <div class="text-align-left input-group"> Academic year
-                            <select id="academic-year-filter" name="year" >
+                            <select id="academic-year-filter" class="form-control" name="year" >
                                 <option th:selected="${selectedYear == year}"
                                         th:each="year : ${academicYears}"
                                         th:value="${year}">
@@ -121,10 +121,10 @@
                         <span id="return-data-metrics-text" class="mtop20 pull-left" th:if="${!returnDataMetrics.isEmpty() && numberOfUkprns != 1}" th:text="${returnDataMetrics}"/>
                     </div>
                 </div>
-            </well>
+            </gla-well>
             <div class="section-title property-name">TOTALS <span th:text="${#gla.financialYear(selectedYear)}"/></div>
 
-            <well class="container-totals combined-totals">
+            <gla-well class="container-totals combined-totals">
                 <div class="text-md-center" id="unique-learners">UNIQUE LEARNERS
                     <div class="section-value" th:text="${uniqueLearners}"/>
                 </div>
@@ -140,14 +140,14 @@
                      th:if="${selectedType != 'AEB_PROCURED' }">GRANT DELIVERY VALUE
                     <div class="section-value" th:text="${totalDeliveryNonProcured}"></div>
                 </div>
-            </well>
+            </gla-well>
             <div class="section-title property-name"></div>
-            <well>
+            <gla-well>
                 <div class="row actions mbottom10 gla-well">
                     <div>
                         <canvas id="canvas"></canvas>
                     </div>
-            </well>
+            </gla-well>
         </form>
 
 

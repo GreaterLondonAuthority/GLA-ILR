@@ -29,6 +29,7 @@ class AdminController(val adminService: AdminService,
     @GetMapping("/messages")
     fun messages(model: Model): String {
         model["messages"] = adminService.getMessages()
+        model["pageTitle"] = "System Messages"
         return "admin/messages"
     }
 
@@ -43,6 +44,7 @@ class AdminController(val adminService: AdminService,
     @GetMapping("/systemDashboard")
     fun systemDashboard(model: Model): String {
         model["infoDetails"] = adminService.getInfoDetails()
+        model["pageTitle"] = "System Dashboard"
         return "admin/systemDashboard"
     }
 
@@ -51,6 +53,7 @@ class AdminController(val adminService: AdminService,
     fun auditHistory(@PageableDefault(size = 50, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable,
                      model: Model): String {
         model["page"] = PagingControls(auditService.findAll(pageable))
+        model["pageTitle"] = "Audit History"
         return "admin/auditHistory"
     }
 

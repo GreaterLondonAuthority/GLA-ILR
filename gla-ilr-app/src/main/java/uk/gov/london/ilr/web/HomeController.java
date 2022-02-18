@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import uk.gov.london.ilr.file.DataImportService;
 import uk.gov.london.ilr.environment.Environment;
+import uk.gov.london.ilr.file.DataImportService;
 import uk.gov.london.ilr.security.User;
 import uk.gov.london.ilr.security.UserService;
 
@@ -25,6 +25,7 @@ class HomeController {
 
     @Autowired
     private DataImportService dataImportService;
+
 
     @Autowired
     private UserService userService;
@@ -46,7 +47,8 @@ class HomeController {
     }
 
     @GetMapping(value = "/login")
-    public String loginPage() {
+    public String loginPage(Model model) {
+        model.addAttribute("pageTitle", "Login");
         return "login";
     }
 

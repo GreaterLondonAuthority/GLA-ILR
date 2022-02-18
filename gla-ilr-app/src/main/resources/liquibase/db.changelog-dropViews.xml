@@ -17,6 +17,7 @@
         <sql>
             DROP VIEW IF EXISTS v_dashboard_key_data_entity_counts;
             DROP VIEW IF EXISTS v_learner_summary;
+            DROP VIEW IF EXISTS v_supplementary_data_summary;
             DROP VIEW IF EXISTS v_occupancy_summary;
         </sql>
 

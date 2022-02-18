@@ -41,7 +41,9 @@ class FundingSummaryService(val fundingSummaryRecordRepository: FundingSummaryRe
 
         val csvFile = CSVFile(inputStream)
 
-        val expectedColumns = mutableSetOf(UKPRN, "Funding Line", "Source", "Category", "Year to date", "Previous collection year to date", "Total")
+        val expectedColumns = mutableSetOf(UKPRN, "Funding Line", "Source", "Category", "Year to date", "Previous collection year to date", "Total","ESFA Funding Line", "ESFA Category")
+        val optionalColumns = mutableSetOf("Year", "Return", "AcMnth", "Provider name")
+
         if (actualMonthName != null) {
             expectedColumns.add(actualMonthName)
         }
@@ -49,11 +51,14 @@ class FundingSummaryService(val fundingSummaryRecordRepository: FundingSummaryRe
         val actualColumns = csvFile.headers
 
         validateColumnHeader(expectedColumns, actualColumns)
+        validateOptionalColumnHeader(optionalColumns, actualColumns)
+        val includeOptional = actualColumns.containsAll(optionalColumns)
 
         fundingSummaryRecordRepository.deleteByAcademicYearAndPeriod(academicYear, period)
 
         while (csvFile.nextRow()) {
-            fundingSummaryRecordRepository.save(createFundingSummaryRecord(csvFile, academicYear, period, actualYear, actualMonth, actualMonthName))
+            fundingSummaryRecordRepository.save(createFundingSummaryRecord(csvFile, academicYear, period, actualYear,
+                actualMonth, actualMonthName, includeOptional))
         }
     }
 
@@ -61,23 +66,36 @@ class FundingSummaryService(val fundingSummaryRecordRepository: FundingSummaryRe
         return DateTimeFormatter.ofPattern("MMM-yy").format(LocalDate.of(year, monthName, 1))
     }
 
-    fun validateColumnHeader(expectedColumnHeader:Set<String>, csvColumnHeader:Set<String>){
+    fun validateColumnHeader(expectedColumnHeader:Set<String>, csvColumnHeader:Set<String>) {
         if (!csvColumnHeader.containsAll(expectedColumnHeader)) {
             val expectedColumns = ArrayList<String>()
 
             for (column in expectedColumnHeader) {
-                if (!csvColumnHeader.contains(column) ) {
+                if (!csvColumnHeader.contains(column)) {
                     expectedColumns.add(column)
                 }
             }
 
-            val errorMessage = "column $expectedColumns not found in the file. Acceptable column headings are $expectedColumnHeader"
+            val errorMessage =
+                "column $expectedColumns not found in the file. Acceptable column headings are $expectedColumnHeader"
+
+            throw RuntimeException(errorMessage)
+        }
+
+    }
+
+    fun validateOptionalColumnHeader(optionalColumnHeaders:Set<String>,  csvColumnHeader:Set<String>) {
+        if (!csvColumnHeader.containsAll(optionalColumnHeaders) &&
+            csvColumnHeader.intersect(optionalColumnHeaders).isNotEmpty()) {
+            val errorMessage =
+                "column $optionalColumnHeaders not found in the file. All optional columns must be included, or none."
 
             throw RuntimeException(errorMessage)
         }
     }
 
-    fun createFundingSummaryRecord(csvRow: CSVRowSource, academicYear: Int, period: Int, actualYear: Int, actualMonth: Int, actualMonthName: String?): FundingSummaryRecord {
+    fun createFundingSummaryRecord(csvRow: CSVRowSource, academicYear: Int, period: Int, actualYear: Int,
+                                   actualMonth: Int, actualMonthName: String?, includeOptional: Boolean): FundingSummaryRecord {
         return FundingSummaryRecord(
                 academicYear,
                 period,
@@ -88,7 +106,11 @@ class FundingSummaryService(val fundingSummaryRecordRepository: FundingSummaryRe
                 csvRow.getString("Source"),
                 csvRow.getString("Category"),
                 if (actualMonthName != null) csvRow.getCurrencyValue(actualMonthName) else null,
-                csvRow.getCurrencyValue("Year to date"))
+                csvRow.getCurrencyValue("Year to date"),
+                csvRow.getString("ESFA Funding Line"),
+                csvRow.getString("ESFA Category"),
+                if (includeOptional) csvRow.getString("Provider name") else null)
+
     }
 
 }

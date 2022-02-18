@@ -10,7 +10,6 @@ package uk.gov.london.ilr.learner
 import java.io.Serializable
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import javax.persistence.*
 
@@ -95,6 +94,7 @@ class LearningDelivery (
         @Column(name = "return")
         var returnPeriod	: Int? = null,
         var fundingLineType : String? = null,
+        var esfaFundingLineType : String? = null,
         var partnerUkprn : Int? = null,
         var ldfamTypeFundingIndicator : Int? = null,
         @Column(name = "ldfam_type_ldm_a")
@@ -130,7 +130,14 @@ class LearningDelivery (
         var partnerUkprnName : String? = null,
         var esmTypeEmploymentIntensity : Int? = null,
         var startForFundingPurposes : Int? = null,
-        var tierTwoSectorSubjectAreaName : String? = null) {
+        var tierTwoSectorSubjectAreaName : String? = null,
+        var policyUpliftRate : Int? = null,
+        var ageAtStart : Int? = null,
+        var basicSkillsType : String? = null,
+        var policyUpliftCategory : String? = null,
+        var esmTypeLengthOfUnemployment : Int? = null
+
+        ) {
 
         constructor(id: LearningDeliveryPK) : this(id, null, null, null,
                 null, null, null, null, null,
@@ -140,7 +147,8 @@ class LearningDelivery (
                 null, null, null, null, null,
                 null, null, null, null,
                 null ,null, null, null,
-                null,null)
+                null,null, null,
+                null, null, null, null, null)
 
         @Transient
         var aim : LearningAim? = null
@@ -173,37 +181,16 @@ class SupplementaryData(
 
         @EmbeddedId
         var id: SupplementaryDataPK,
+        var period: Int?,
         var investmentPriorityClaimedUnder: String,
-        var hasBasicSkills: Int,
         var isHomeless: Int,
         var highestEducationalAttainmentAtEsfStart: Int,
-        var progressingIntoEducationOrTrainingAsEsfResult: Int,
-        var startDateForEducationOrTrainingEsfResult: LocalDate,
-        var hasLeftEsfProgram: Int,
-        var esfLeaveDate: LocalDate,
+        var highestLiteracyAttainmentAtEsfStart: String,
+        var highestNumeracyAttainmentAtEsfStart: String,
+        var progressingIntoEducationOrTrainingAsEsfResult: Int?,
+        var startDateForEducationOrTrainingEsfResult: LocalDate?,
+        var hasLeftEsfProgramme: Int?,
+        var esfReturner: Int?,
+        var esfLeaveDate: LocalDate?,
         var lastSupplementaryDataUpload: OffsetDateTime
 )
-
-@Embeddable
-class SupplementaryDataPK(
-        var ukprn: Int,
-        var learnerReferenceNumber: String
-) : Serializable
-
-
-@Entity(name = "ref_data_mapping")
-class RefDataMapping(
-        @EmbeddedId
-        var id: RefDataMappingPK,
-        var headlineValue: String?,
-        var detailedValue: String?,
-        var addedOn: LocalDateTime,
-        var addedBy: String
-)
-
-@Embeddable
-class RefDataMappingPK(
-        var year: Int?,
-        var attribute: String,
-        var code: String
-) : Serializable

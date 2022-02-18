@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet id="50" author="cmelville">
+    <dropColumn tableName="supplementary_data" columnName="has_basic_skills"/>
+    <addColumn tableName="supplementary_data">
+      <column name="highest_literacy_attainment_at_esf_start" type="varchar(10)" />
+      <column name="highest_numeracy_attainment_at_esf_start" type="varchar(10)" />
+    </addColumn>
+  </changeSet>
+
+
+
+</databaseChangeLog>

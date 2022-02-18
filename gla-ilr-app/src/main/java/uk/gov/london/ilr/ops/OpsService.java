@@ -7,16 +7,6 @@
  */
 package uk.gov.london.ilr.ops;
 
-import static uk.gov.london.ilr.file.FileUploadHandlerKt.getSkillsGrantType;
-import static uk.gov.london.ilr.feature.IlrFeature.OPS_CONNECTION;
-
-import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +28,18 @@ import uk.gov.london.ilr.security.SGWAuthenticationException;
 import uk.gov.london.ilr.security.User;
 import uk.gov.london.ilr.security.UserService;
 
+import java.time.OffsetDateTime;
+import java.util.*;
+
+import static uk.gov.london.ilr.feature.IlrFeature.OPS_CONNECTION;
+import static uk.gov.london.ilr.file.FileUploadHandlerKt.getSkillsGrantType;
+
 @Service
 public class OpsService {
 
     Logger log = LoggerFactory.getLogger(getClass());
 
-    public static String[] TEST_USERS = new String[]{};
+    public static String[] TEST_USERS = new String[]{""};
 
     @Autowired
     private FeatureManager features;
@@ -131,9 +127,17 @@ public class OpsService {
             if (response.getStatusCode().is2xxSuccessful()) {
                 return response.getBody();
             } else {
-                throw new SGWAuthenticationException(response.getStatusCodeValue());
+                List<String> header = response.getHeaders().get("ERROR");
+                if (header != null && !header.isEmpty()) {
+                    String errorMessage = header.get(0);
+                    throw new SGWAuthenticationException(401, errorMessage);
+                }
+                throw new SGWAuthenticationException(response.getStatusCodeValue(), "");
             }
         } catch (HttpClientErrorException e) {
+            if (e.getResponseHeaders() != null && e.getResponseHeaders().get("ERROR") != null) {
+                throw new SGWAuthenticationException(e.getRawStatusCode(), e.getResponseHeaders().get("ERROR").get(0), username);
+            }
             throw new SGWAuthenticationException(e.getRawStatusCode());
         }
     }

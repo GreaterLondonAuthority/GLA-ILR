@@ -38,7 +38,7 @@ public class SwaggerConfig {
                 "This is the API for GLA ILR System.",
                 "0.1",
                 "Terms of service",
-                new Contact("", "", ""),
+                new Contact("GLA OPS", "", ""),
                 "License of API",
                 "API license URL", Collections.emptyList());
     }

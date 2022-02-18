@@ -12,7 +12,10 @@ import uk.gov.london.ilr.ops.OpsService
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class SGWAuthenticationException(var httpStatusCode: Int?) : AuthenticationException("")
+class SGWAuthenticationException(var httpStatusCode: Int? , var errorCode: String?, var username: String?) : AuthenticationException("") {
+    constructor(httpStatusCode: Int?) : this(httpStatusCode, "");
+    constructor(httpStatusCode: Int?, errorCode: String?) : this(httpStatusCode, errorCode, "");
+}
 
 @Component
 class OPSAuthProvider @Autowired constructor (val opsService: OpsService) : AuthenticationProvider {
@@ -36,9 +39,8 @@ class SGWAuthenticationFailureHandler : AuthenticationFailureHandler {
 
     override fun onAuthenticationFailure(request: HttpServletRequest, response: HttpServletResponse, e: AuthenticationException) {
         if (e is SGWAuthenticationException) {
-            response.sendRedirect("/login?error=${e.httpStatusCode}")
-        }
-        else {
+            response.sendRedirect("/login?error=${e.httpStatusCode}&reason=${e.errorCode}&username=${e.username}")
+        } else {
             response.sendRedirect("/login?error")
         }
     }

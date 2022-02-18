@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import uk.gov.london.ilr.file.ESFMonthlyRecordFile.validateESFMonthlyRecordFile
 import uk.gov.london.ilr.security.UserService
 
 @Controller
@@ -24,46 +23,50 @@ class FileController(private val fileUploadHandler: FileUploadHandler,
                      private val dataImportService: DataImportService,
                      private val userService: UserService) {
 
-    @PreAuthorize("hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE', 'GLA_READ_ONLY')")
+    @PreAuthorize("authentication.name == '' or hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE', 'GLA_READ_ONLY')")
     @PostMapping("/upload")
-    fun handleFileUpload(@RequestParam("file") file: MultipartFile, redirectAttributes: RedirectAttributes): String {
+    fun handleFileUpload(@RequestParam("file") file: MultipartFile,
+                         @RequestParam("redirectTo", required = false) redirectTo: String? = null,
+                         redirectAttributes: RedirectAttributes): String {
         try {
-            val fileName = file.originalFilename
+            val fileName = file.originalFilename!!
             val importType = getDataImportTypeFromFileName(fileName)
-            if (importType.isMonthlyFile) {
-                validateESFMonthlyRecordFile(fileName, importType)
+
+            if (importType.shouldClearPreviousData()) {
+                // can only delete if year/period data is present atm
+                val academicYear = extractYearFromFilename(fileName, importType)
+                val period = extractPeriodFromFilename(fileName, importType)
+                dataImportService.delete(importType, academicYear, period)
             }
 
-            val result: UploadResult
             if (file.size > 1000000) {
-                result = fileUploadHandler.uploadAsync(fileName, file.inputStream, importType, userService.currentUserName())
-            }
-            else {
-                result = fileUploadHandler.upload(fileName, file.inputStream, importType, userService.currentUserName())
-            }
-
-            if (result.errorMessages.isNotEmpty()) {
-                redirectAttributes.addFlashAttribute("errorMessageList", result.errorMessages)
+                fileUploadHandler.uploadAsync(fileName, file.inputStream, importType, userService.currentUserName())
+            } else {
+                val result = fileUploadHandler.upload(fileName, file.inputStream, importType, userService.currentUserName())
+                if (result != null && result.errorMessages.isNotEmpty()) {
+                    redirectAttributes.addFlashAttribute("errorMessageList", result.errorMessages)
+                }
             }
         }
         catch (e: Exception) {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to upload due to: ${e.message}")
-        }
+         }
 
-        return "redirect:/files"
+        return if (redirectTo != null) "redirect:/$redirectTo" else "redirect:/files"
     }
 
-    fun getDataImportTypeFromFileName(fileName: String?) = (DataImportType.getTypeByFilename(fileName!!)
+    fun getDataImportTypeFromFileName(fileName: String) = (DataImportType.getTypeByFilename(fileName)
             ?: throw IllegalArgumentException("Unable to identify file type by filename: $fileName"))
 
-    @PreAuthorize("hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE', 'GLA_READ_ONLY')")
+    @PreAuthorize("authentication.name == '' or hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE', 'GLA_READ_ONLY')")
     @GetMapping("/files")
     fun filesPage(model: Model): String {
         model["dataImports"] = dataImportService.dataImports()
+        model["pageTitle"] = "Imported Files"
         return "files"
     }
 
-    @PreAuthorize("hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE')")
+    @PreAuthorize("authentication.name == '' or hasAnyRole('OPS_ADMIN', 'GLA_ORG_ADMIN', 'GLA_SPM', 'GLA_PM', 'GLA_FINANCE')")
     @PostMapping("/deleteFile")
     fun deleteFile(@RequestParam("id") id: Int, redirectAttributes: RedirectAttributes): String {
         dataImportService.delete(id)
